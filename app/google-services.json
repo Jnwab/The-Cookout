@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1011342130805",
+    "project_id": "thecookout-d75b5",
+    "storage_bucket": "thecookout-d75b5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1011342130805:android:7176ef4244707e0c84423c",
+        "android_client_info": {
+          "package_name": "com.cecs491b.thecookout"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMoxRtxSwf6hiTZ5IN9p8G6XGnRUsL4wI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
