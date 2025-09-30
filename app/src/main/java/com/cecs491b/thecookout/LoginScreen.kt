@@ -1,5 +1,6 @@
 package com.cecs491b.thecookout.ui
 
+import android.R
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -12,6 +13,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import com.cecs491b.thecookout.ui.theme.CookoutOrange
+import com.cecs491b.thecookout.ui.theme.DarkerOrange
+import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
 
 @Composable
 fun LoginScreen(
@@ -31,9 +38,19 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            Spacer(Modifier.height(200.dp))
+
             Text(
                 "Hello! Sign in pls",
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            DarkerOrange,
+                            CookoutOrange,
+                            DarkerOrange
+                        )
+                    )
+                ),
                 textAlign = TextAlign.Center
             )
 
@@ -59,15 +76,46 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(20.dp))
 
             Button(
                 onClick = onLoginClick,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
                 modifier = Modifier
-                    .fillMaxWidth()
                     .height(48.dp)
+                    .width(200.dp)
             ) {
                 Text("Log in")
+            }
+
+            Spacer(Modifier.height(20.dp))
+
+            Button(
+                onClick = onForgotPasswordClick,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                modifier = Modifier
+                    .height(36.dp)
+                    .width(170.dp)
+            ) {
+                Text("Forgot Password")
+            }
+
+            Spacer(Modifier.height(200.dp))
+
+            TextButton(
+                onClick = onCreateAccountClick
+            ) {
+                Text(
+                    text ="New here? Create Account",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyLarge
+                )
             }
         }
     }
@@ -76,5 +124,7 @@ fun LoginScreen(
 @Preview(showBackground = true)
 @Composable
 private fun LoginScreenPreview() {
-    MaterialTheme { LoginScreen() }
+    TheCookoutTheme(darkTheme = false, dynamicColor = false) {
+        LoginScreen()
+    }
 }

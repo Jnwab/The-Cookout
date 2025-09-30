@@ -10,17 +10,21 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
+
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Orange40,
-    secondary = Orange40,
-    tertiary = Orange40
+    primary = CookoutOrange,
+    onPrimary = Color.White,
+    secondary = CookoutOrange,
+    tertiary = CookoutOrange
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Orange40,
-    secondary = Orange40,
-    tertiary = Orange40
+    primary = CookoutOrange,
+    onPrimary = Color.White,
+    secondary = CookoutOrange,
+    tertiary = CookoutOrange
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
