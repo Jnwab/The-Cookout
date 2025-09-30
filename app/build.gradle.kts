@@ -47,6 +47,10 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
     // Added Firebase Analytics
     implementation("com.google.firebase:firebase-analytics")
+    // Added dependencies for Firebase Authentication library & other Firebase SDK
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-storage")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
