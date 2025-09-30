@@ -12,10 +12,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
+import com.google.firebase.auth.FirebaseAuth
 
-class MainActivity : ComponentActivity() {
+class LoginActivity : ComponentActivity() {
+    private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
         setContent {
             TheCookoutTheme {
