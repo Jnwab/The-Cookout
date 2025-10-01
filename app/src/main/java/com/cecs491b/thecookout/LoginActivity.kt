@@ -1,18 +1,26 @@
 package com.cecs491b.thecookout
 
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
+import com.cecs491b.thecookout.ui.LoginScreen
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
+import com.google.firebase.database.database
+import com.google.firebase.storage.storage
 
 class LoginActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -20,32 +28,70 @@ class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val isDebug = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+
+        if (isDebug) {
+            Firebase.database.useEmulator("10.0.2.2", 9000)
+            Firebase.auth.useEmulator("10.0.2.2", 9099)
+            Firebase.storage.useEmulator("10.0.2.2", 9199)
+        }
+
+        auth = Firebase.auth
+
         enableEdgeToEdge()
         setContent {
             TheCookoutTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    LoginScreen(
+                        onLoginClick = { email, password ->
+                            handleLogin(email, password)
+                        },
+                        onForgotPasswordClick = {
+                            handleForgotPassword()
+                        },
+                        onCreateAccountClick = {
+                            handleCreateAccount()
+                        }
                     )
                 }
             }
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    private fun handleLogin(email:String, password: String){
+        if (email.isBlank()  || password.isBlank()){
+            Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    TheCookoutTheme {
-        Greeting("Android")
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) {
+                task -> if (task.isSuccessful){
+                    Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
+
+                // TODO: Navigate to main screen activity: MainScreenActivity
+                // startActivity(Intent(this,mainScreenActivity::class.java))
+                // finish()
+
+            } else{
+                Toast.makeText(this, "Authentication failed </3 : ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+              }
+            }
+
+        Toast.makeText(this, "Login clicked", Toast.LENGTH_SHORT).show()
     }
+
+    private fun handleForgotPassword(){
+        // TODO Navigates to Forgot Password Screen or show Dialog
+        Toast.makeText(this, "Forgot password clicked", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun handleCreateAccount(){
+        // TODO Navigates to Signup Activity
+        // startActivity(Intent(this, signUpActivity::class.java))
+        Toast.makeText(this, "Create account clicked", Toast.LENGTH_SHORT).show()
+    }
+
+
+
 }

@@ -22,7 +22,7 @@ import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
 
 @Composable
 fun LoginScreen(
-    onLoginClick: () -> Unit = {},
+    onLoginClick: (email: String, password: String) -> Unit = {_,_ -> },
     onForgotPasswordClick: () -> Unit = {},
     onCreateAccountClick: () -> Unit = {}
 ) {
@@ -79,7 +79,7 @@ fun LoginScreen(
             Spacer(Modifier.height(20.dp))
 
             Button(
-                onClick = onLoginClick,
+                onClick = {onLoginClick(email, password)},
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
