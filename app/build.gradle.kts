@@ -49,6 +49,7 @@ android {
 
 dependencies {
 
+
     // imports Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
     // Added Firebase Analytics
