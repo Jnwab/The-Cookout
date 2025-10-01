@@ -1,5 +1,6 @@
 package com.cecs491b.thecookout
 
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.widget.Toast
@@ -15,6 +16,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.GoogleAuthProvider
 import com.cecs491b.thecookout.ui.LoginScreen
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -24,6 +30,8 @@ import com.google.firebase.storage.storage
 
 class LoginActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
+    private lateinit var googleClient: GoogleSignInClient
+    private val RC_SIGN_IN = 1001
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +46,12 @@ class LoginActivity : ComponentActivity() {
 
         auth = Firebase.auth
 
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+        googleClient = GoogleSignIn.getClient(this, gso)
+
         enableEdgeToEdge()
         setContent {
             TheCookoutTheme {
@@ -51,7 +65,8 @@ class LoginActivity : ComponentActivity() {
                         },
                         onCreateAccountClick = {
                             handleCreateAccount()
-                        }
+                        },
+                        onGoogleSignInClick = { launchGoogleSignIn() }
                     )
                 }
             }
@@ -92,6 +107,35 @@ class LoginActivity : ComponentActivity() {
         Toast.makeText(this, "Create account clicked", Toast.LENGTH_SHORT).show()
     }
 
+    private fun launchGoogleSignIn() {
+        startActivityForResult(googleClient.signInIntent, RC_SIGN_IN)
+    }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == RC_SIGN_IN) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            try {
+                val account = task.getResult(ApiException::class.java)!!
+                firebaseAuthWithGoogle(account.idToken!!)
+            } catch (e: ApiException) {
+                Toast.makeText(this, "Google sign-in failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun firebaseAuthWithGoogle(idToken: String) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(this, "Google Sign-In success!", Toast.LENGTH_SHORT).show()
+                    // TODO: Navigate to main screen
+                    // startActivity(Intent(this, MainActivity::class.java)); finish()
+                } else {
+                    Toast.makeText(this, task.exception?.message ?: "Sign-In failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
 
 }

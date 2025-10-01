@@ -1,6 +1,9 @@
 package com.cecs491b.thecookout.ui
 
-import android.R
+import com.cecs491b.thecookout.R
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -20,11 +23,54 @@ import com.cecs491b.thecookout.ui.theme.CookoutOrange
 import com.cecs491b.thecookout.ui.theme.DarkerOrange
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
 
+// Can put in another .kt later on if want
+@Composable
+private fun GoogleSignInButton(
+    modifier: Modifier = Modifier,
+    text: String = "Sign in with Google",
+    enabled: Boolean = true,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        shape = RoundedCornerShape(20.dp),
+        border = BorderStroke(1.dp, Color(0xFFDADCE0)),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.White,
+            contentColor = Color.Black,
+            disabledContainerColor = Color.White,
+            disabledContentColor = Color(0x61000000) // 38% black
+        ),
+        contentPadding = PaddingValues(horizontal = 12.dp),
+        modifier = modifier
+            .height(48.dp)
+            .width(190.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_google_logo),
+                contentDescription = "Google logo",
+                tint = Color.Unspecified,
+                modifier = Modifier
+                    .size(30.dp)
+                    .padding(end = 12.dp)
+            )
+            Text(text)
+        }
+    }
+}
+
 @Composable
 fun LoginScreen(
     onLoginClick: (email: String, password: String) -> Unit = {_,_ -> },
     onForgotPasswordClick: () -> Unit = {},
-    onCreateAccountClick: () -> Unit = {}
+    onCreateAccountClick: () -> Unit = {},
+    onGoogleSignInClick: () -> Unit = {}
 ) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -59,7 +105,7 @@ fun LoginScreen(
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("email") },
+                label = { Text("Email") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
@@ -91,7 +137,15 @@ fun LoginScreen(
                 Text("Log in")
             }
 
+            Spacer(Modifier.height(12.dp))
+
+            GoogleSignInButton(
+                onClick = onGoogleSignInClick,
+                modifier = Modifier
+            )
+
             Spacer(Modifier.height(20.dp))
+
 
             Button(
                 onClick = onForgotPasswordClick,
