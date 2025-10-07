@@ -40,7 +40,7 @@ class LoginActivity : ComponentActivity() {
 
         if (isDebug) {
             Firebase.database.useEmulator("10.0.2.2", 9000)
-            Firebase.auth.useEmulator("10.0.2.2", 9099)
+            Firebase.auth.useEmulator("10.0.2.2", 9100)
             Firebase.storage.useEmulator("10.0.2.2", 9199)
         }
 
