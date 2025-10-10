@@ -1,4 +1,4 @@
-package com.cecs491b.thecookout
+package com.cecs491b.thecookout.Activities
 
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -8,22 +8,18 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.cecs491b.thecookout.R
+import com.cecs491b.thecookout.ui.LoginScreen
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.firebase.auth.GoogleAuthProvider
-import com.cecs491b.thecookout.ui.LoginScreen
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import com.google.firebase.database.database
 import com.google.firebase.storage.storage
@@ -55,7 +51,7 @@ class LoginActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TheCookoutTheme {
-                Surface(modifier = Modifier.fillMaxSize()) {
+                Surface(modifier = Modifier.Companion.fillMaxSize()) {
                     LoginScreen(
                         onLoginClick = { email, password ->
                             handleLogin(email, password)
