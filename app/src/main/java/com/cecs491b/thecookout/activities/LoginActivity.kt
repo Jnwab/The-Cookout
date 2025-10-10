@@ -1,4 +1,4 @@
-package com.cecs491b.thecookout.Activities
+package com.cecs491b.thecookout.activities
 
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.cecs491b.thecookout.R
-import com.cecs491b.thecookout.ui.LoginScreen
+import com.cecs491b.thecookout.uiScreens.LoginScreen
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient

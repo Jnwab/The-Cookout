@@ -1,4 +1,4 @@
-package com.cecs491b.thecookout.ui
+package com.cecs491b.thecookout.uiScreens
 
 import com.cecs491b.thecookout.R
 import androidx.compose.foundation.BorderStroke
