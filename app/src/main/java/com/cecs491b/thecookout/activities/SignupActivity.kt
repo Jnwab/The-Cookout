@@ -37,7 +37,7 @@ class SignupActivity: ComponentActivity() {
         setContent {
             TheCookoutTheme {
                 Surface(modifier = Modifier.fillMaxSize()){
-                    SignUpScreen(
+                    SignupScreen(
                         onSignupClick = {email, password, displayName ->
                             handleSignup(email, password, displayName)
                         },
