@@ -1,4 +1,4 @@
-package com.cecs491b.thecookout.data
+package com.cecs491b.thecookout.models
 
 data class User(
     val uid: String = "",
