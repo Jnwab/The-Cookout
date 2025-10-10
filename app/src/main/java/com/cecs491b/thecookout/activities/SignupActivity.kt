@@ -23,7 +23,53 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import com.google.firebase.database.database
 import com.google.firebase.storage.storage
+import com.cecs491b.thecookout.uiScreens.SignupScreen
+import com.cecs491b.thecookout.models.User
 
 
-class SignupActivity {
+class SignupActivity: ComponentActivity() {
+    private lateinit var auth: FirebaseAuth
+
+    override fun onCreate(savedInstanceState: Bundle? ){
+        super.onCreate(savedInstanceState)
+        auth = Firebase.auth
+
+        setContent {
+            TheCookoutTheme {
+                Surface(modifier = Modifier.fillMaxSize()){
+                    SignUpScreen(
+                        onSignupClick = {email, password, displayName ->
+                            handleSignup(email, password, displayName)
+                        },
+                        onBackToLoginClick = {
+                            finish()
+                        }
+
+                    )
+                }
+            }
+        }
+    }
+
+    private fun handleSignup(email: String, password: String, displayName: String){
+        if (email.isBlank() || password.isBlank() || displayName.isBlank()){
+            Toast.makeText(this, "Please fill out all fields", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (password.length < 10) {
+            Toast.makeText(this, "Password must be atleast 10 characters", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful){
+                    Toast.makeText(this, "Account creation successful.", Toast.LENGTH_SHORT).show()
+                }
+
+
+            }
+    }
+
 }
