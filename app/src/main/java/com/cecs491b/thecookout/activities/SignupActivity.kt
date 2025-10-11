@@ -43,12 +43,16 @@ class SignupActivity: ComponentActivity() {
                         },
                         onBackToLoginClick = {
                             finish()
-                        }
-
+                        },
+                        onGoogleSignInClick = { launchGoogleLink() }
                     )
                 }
             }
         }
+    }
+
+    private fun launchGoogleLink(){
+        // pass rn
     }
 
     private fun handleSignup(email: String, password: String, displayName: String){
@@ -58,7 +62,7 @@ class SignupActivity: ComponentActivity() {
         }
 
         if (password.length < 10) {
-            Toast.makeText(this, "Password must be atleast 10 characters", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Password must be at least 10 characters", Toast.LENGTH_SHORT).show()
             return
         }
 

@@ -99,7 +99,7 @@ class LoginActivity : ComponentActivity() {
 
     private fun handleCreateAccount(){
         // TODO Navigates to Signup Activity
-        // startActivity(Intent(this, signUpActivity::class.java))
+        // startActivity(Intent(this, SignupActivity::class.java))
         Toast.makeText(this, "Create account clicked", Toast.LENGTH_SHORT).show()
     }
 
