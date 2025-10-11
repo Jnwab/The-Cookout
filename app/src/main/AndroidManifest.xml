@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TheCookout">
         <activity
-            android:name=".LoginActivity"
+            android:name=".activities.LoginActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.TheCookout">
@@ -25,6 +25,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".activities.SignupActivity" />
     </application>
 
 </manifest>
