@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -43,6 +44,7 @@ fun SignupScreen(
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var displayName by rememberSaveable { mutableStateOf("") }
+    var phoneNumber by rememberSaveable { mutableStateOf("") }
 
     Scaffold { padding ->
         Column(
@@ -75,7 +77,8 @@ fun SignupScreen(
                 value = displayName,
                 onValueChange = { displayName = it },
                 label = { Text("Display name") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -86,7 +89,8 @@ fun SignupScreen(
                 value = email,
                 onValueChange = { email = it },
                 label = { Text("Email") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -98,6 +102,17 @@ fun SignupScreen(
                 onValueChange = { password = it },
                 label = { Text("Password") },
                 visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            OutlinedTextField(
+                value = phoneNumber,
+                onValueChange = { phoneNumber = it },
+                label = { Text("Phone number") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone,
+                    imeAction = ImeAction.Done),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
