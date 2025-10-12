@@ -25,14 +25,17 @@ import com.google.firebase.database.database
 import com.google.firebase.storage.storage
 import com.cecs491b.thecookout.uiScreens.SignupScreen
 import com.cecs491b.thecookout.models.User
+import com.google.firebase.database.FirebaseDatabase
 
 
 class SignupActivity: ComponentActivity() {
     private lateinit var auth: FirebaseAuth
+    private lateinit var database: FirebaseDatabase
 
     override fun onCreate(savedInstanceState: Bundle? ){
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
+        database = Firebase.database
 
         setContent {
             TheCookoutTheme {
@@ -55,8 +58,8 @@ class SignupActivity: ComponentActivity() {
         // pass rn
     }
 
-    private fun handleSignup(email: String, password: String, displayName: String){
-        if (email.isBlank() || password.isBlank() || displayName.isBlank()){
+    private fun handleSignup(email: String, password: String, displayName: String) {
+        if (email.isBlank() || password.isBlank() || displayName.isBlank()) {
             Toast.makeText(this, "Please fill out all fields", Toast.LENGTH_SHORT).show()
             return
         }
@@ -68,11 +71,56 @@ class SignupActivity: ComponentActivity() {
 
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful){
-                    Toast.makeText(this, "Account creation successful.", Toast.LENGTH_SHORT).show()
+                if (task.isSuccessful) {
+                    val firebaseUser = auth.currentUser
+                    if (firebaseUser != null) {
+                        // Create user profile
+                        val user = User(
+                            uid = firebaseUser.uid,
+                            email = email,
+                            displayName = displayName,
+                            phoneNumber = "",
+                            photoUrl = "",
+                            provider = "email",
+                            createdAt = System.currentTimeMillis(),
+                            updatedAt = System.currentTimeMillis()
+                        )
+
+                        // Save to database
+                        saveUserToDatabase(user)
+                    }
+                } else {
+                    val errorMessage = when {
+                        task.exception?.message?.contains("email address is already in use") == true ->
+                            "This email is already registered. Please login instead."
+                        task.exception?.message?.contains("badly formatted") == true ->
+                            "Invalid email format"
+                        task.exception?.message?.contains("weak password") == true ->
+                            "Password is too weak"
+                        else -> "Signup failed: ${task.exception?.message}"
+                    }
+                    Toast.makeText(
+                        this,
+                        errorMessage,
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
+            }
+    }
 
-
+    private fun saveUserToDatabase(user: User) {
+        database.reference.child("users").child(user.uid)
+            .setValue(user)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show()
+                finish() // Return to login
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(
+                    this,
+                    "Failed to save profile: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 

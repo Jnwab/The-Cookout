@@ -21,11 +21,14 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.database
 import com.google.firebase.storage.storage
+import com.cecs491b.thecookout.models.User
 
 class LoginActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
+    private lateinit var database: FirebaseDatabase
     private lateinit var googleClient: GoogleSignInClient
     private val RC_SIGN_IN = 1001
 
@@ -41,6 +44,7 @@ class LoginActivity : ComponentActivity() {
         }
 
         auth = Firebase.auth
+        database = Firebase.database
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
@@ -85,6 +89,10 @@ class LoginActivity : ComponentActivity() {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) {
                 task -> if (task.isSuccessful){
+                    val firebaseUser = auth.currentUser
+                    if (firebaseUser != null){
+                        getUserProfile(firebaseUser.uid)
+                    }
                     Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
 
                 // TODO: Navigate to main screen activity: MainScreenActivity
@@ -139,6 +147,32 @@ class LoginActivity : ComponentActivity() {
                     Toast.makeText(this, task.exception?.message ?: "Sign-In failed", Toast.LENGTH_SHORT).show()
                 }
             }
+    }
+    private fun getUserProfile(uid: String) {
+        val userRef = database.reference.child("users").child(uid)
+
+        userRef.get().addOnSuccessListener { snapshot ->
+            if (snapshot.exists()) {
+                // User exists, update last login and navigate
+                updateUserLastLogin(uid)
+                Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
+                // TODO: Navigate to MainActivity
+                // startActivity(Intent(this, MainActivity::class.java))
+                // finish()
+            } else {
+                // Profile doesn't exist (shouldn't happen if they signed up properly)
+                Toast.makeText(this, "Profile not found. Please sign up first.", Toast.LENGTH_SHORT).show()
+                auth.signOut() // Sign them out
+            }
+        }.addOnFailureListener {
+            Toast.makeText(this, "Failed to load profile", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun updateUserLastLogin(uid: String) {
+        database.reference.child("users").child(uid)
+            .child("updatedAt")
+            .setValue(System.currentTimeMillis())
     }
 
 }
