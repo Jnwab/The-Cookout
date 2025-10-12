@@ -5,8 +5,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -70,7 +70,9 @@ fun LoginScreen(
     onLoginClick: (email: String, password: String) -> Unit = {_,_ -> },
     onForgotPasswordClick: () -> Unit = {},
     onCreateAccountClick: () -> Unit = {},
-    onGoogleSignInClick: () -> Unit = {}
+    onGoogleSignInClick: () -> Unit = {},
+    onSignupClick: () -> Unit = {},
+    onPhoneAuthClick: () -> Unit = {}
 ) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -161,6 +163,15 @@ fun LoginScreen(
                     .width(170.dp)
             ) {
                 Text("Forgot Password")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedButton(
+                onClick = onPhoneAuthClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Sign in with Phone Number")
             }
 
             Spacer(Modifier.height(200.dp))

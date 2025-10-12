@@ -62,7 +62,14 @@ class LoginActivity : ComponentActivity() {
                         onCreateAccountClick = {
                             handleCreateAccount()
                         },
-                        onGoogleSignInClick = { launchGoogleSignIn() }
+                        onGoogleSignInClick = { launchGoogleSignIn() },
+                        onSignupClick = {
+                            startActivity(Intent(this, SignupActivity::class.java))
+                        },
+                        onPhoneAuthClick = {
+                            startActivity(Intent(this, PhoneAuthActivity::class.java))
+                        }
+
                     )
                 }
             }

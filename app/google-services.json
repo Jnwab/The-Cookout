@@ -13,7 +13,28 @@
           "package_name": "com.cecs491b.thecookout"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "258072084343-a5ga8l0rmiljva8530uh6gv40koh61p7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cecs491b.thecookout",
+            "certificate_hash": "a459649c5f18792768a8bdd69b40fef3c2293c97"
+          }
+        },
+        {
+          "client_id": "258072084343-st2bs41im40nqfl2g9165ir1pf5q4s3k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cecs491b.thecookout",
+            "certificate_hash": "7824ae6a29d91fe172a440637a3e729dad21ea62"
+          }
+        },
+        {
+          "client_id": "258072084343-rkjh2lobhc5ncc8gpe4aa8sggp00ofda.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCf8q4U-Tfs_RWbB-W8NQ-6isdpXbeWAPg"
@@ -21,7 +42,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "258072084343-rkjh2lobhc5ncc8gpe4aa8sggp00ofda.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
