@@ -69,7 +69,6 @@ private fun GoogleSignInButton(
 fun LoginScreen(
     onLoginClick: (email: String, password: String) -> Unit = {_,_ -> },
     onForgotPasswordClick: () -> Unit = {},
-    onCreateAccountClick: () -> Unit = {},
     onGoogleSignInClick: () -> Unit = {},
     onSignupClick: () -> Unit = {},
     onPhoneAuthClick: () -> Unit = {}
@@ -174,10 +173,10 @@ fun LoginScreen(
                 Text("Sign in with Phone Number")
             }
 
-            Spacer(Modifier.height(200.dp))
+            Spacer(Modifier.height(20.dp))
 
             TextButton(
-                onClick = onCreateAccountClick
+                onClick = onSignupClick
             ) {
                 Text(
                     text ="New here? Create Account",

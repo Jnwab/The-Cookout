@@ -63,9 +63,6 @@ class LoginActivity : ComponentActivity() {
                         onForgotPasswordClick = {
                             handleForgotPassword()
                         },
-                        onCreateAccountClick = {
-                            handleCreateAccount()
-                        },
                         onGoogleSignInClick = { launchGoogleSignIn() },
                         onSignupClick = {
                             startActivity(Intent(this, SignupActivity::class.java))
