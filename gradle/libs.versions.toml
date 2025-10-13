@@ -9,6 +9,7 @@ lifecycleRuntimeKtx = "2.9.4"
 activityCompose = "1.11.0"
 composeBom = "2024.09.00"
 firebaseAuthKtx = "24.0.1"
+firebaseDatabase = "22.0.1"
 foundation = "1.9.3"
 
 [libraries]
