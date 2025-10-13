@@ -38,6 +38,7 @@
         <activity
             android:name=".activities.PhoneAuthActivity"
             android:exported="false"/>
+        <activity android:name=".activities.ForgotPasswordActivity" />
     </application>
 
 </manifest>

@@ -25,6 +25,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.database
 import com.google.firebase.storage.storage
 import com.cecs491b.thecookout.models.User
+import com.cecs491b.thecookout.activities.ForgotPasswordActivity
 
 class LoginActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -61,7 +62,7 @@ class LoginActivity : ComponentActivity() {
                             handleLogin(email, password)
                         },
                         onForgotPasswordClick = {
-                            handleForgotPassword()
+                            startActivity(Intent(this, ForgotPasswordActivity::class.java))
                         },
                         onGoogleSignInClick = { launchGoogleSignIn() },
                         onSignupClick = {

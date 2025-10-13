@@ -22,6 +22,10 @@ import androidx.compose.ui.text.input.ImeAction
 import com.cecs491b.thecookout.ui.theme.CookoutOrange
 import com.cecs491b.thecookout.ui.theme.DarkerOrange
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
+import android.content.Intent
+import androidx.compose.ui.platform.LocalContext
+import com.cecs491b.thecookout.activities.ForgotPasswordActivity
+
 
 // Can put in another .kt later on if want
 @Composable
