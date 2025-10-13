@@ -44,7 +44,7 @@ class SignupActivity: ComponentActivity() {
                         onSignupClick = {email, password, displayName ->
                             handleSignup(email, password, displayName)
                         },
-                        onBackToLoginClick = {
+                        onBackToLogin = {
                             finish()
                         },
                         onGoogleSignInClick = { launchGoogleLink() }

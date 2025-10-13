@@ -38,7 +38,7 @@ import com.cecs491b.thecookout.models.User
 @Composable
 fun SignupScreen(
     onSignupClick: (email: String, password: String, displayName: String) -> Unit = {_,_,_ -> },
-    onBackToLoginClick:() -> Unit = {},
+    onBackToLogin:() -> Unit = {},
     onGoogleSignInClick: () -> Unit = {}
 ) {
     var email by rememberSaveable { mutableStateOf("") }
@@ -133,6 +133,13 @@ fun SignupScreen(
             }
 
             Spacer(Modifier.height(20.dp))
+
+            TextButton(
+                onClick = onBackToLogin,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Back to Login", color = CookoutOrange)
+            }
         }
     }
 }
