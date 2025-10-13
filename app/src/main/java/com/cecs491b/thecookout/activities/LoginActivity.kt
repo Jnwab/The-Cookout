@@ -62,7 +62,7 @@ class LoginActivity : ComponentActivity() {
                         onCreateAccountClick = {
                             handleCreateAccount()
                         },
-                        onGoogleSignInClick = { launchGoogleSignIn() }
+                        onGoogleSignInClick = { launchGoogleSignIn() },
                     )
                 }
             }
@@ -80,13 +80,11 @@ class LoginActivity : ComponentActivity() {
                 task -> if (task.isSuccessful){
                     Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
 
-                // TODO: Navigate to main screen activity: MainScreenActivity
-                // startActivity(Intent(this,mainScreenActivity::class.java))
-                // finish()
-
-            } else{
-                Toast.makeText(this, "Authentication failed </3 : ${task.exception?.message}", Toast.LENGTH_SHORT).show()
-              }
+                    startActivity(Intent(this,HomeActivity::class.java))
+                    finish()
+                } else {
+                    Toast.makeText(this, "Authentication failed </3 : ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
             }
 
         Toast.makeText(this, "Login clicked", Toast.LENGTH_SHORT).show()
@@ -98,9 +96,9 @@ class LoginActivity : ComponentActivity() {
     }
 
     private fun handleCreateAccount(){
-        // TODO Navigates to Signup Activity
-        // startActivity(Intent(this, signUpActivity::class.java))
+        startActivity(Intent(this, SignupActivity::class.java))
         Toast.makeText(this, "Create account clicked", Toast.LENGTH_SHORT).show()
+        finish()
     }
 
     private fun launchGoogleSignIn() {
@@ -126,8 +124,8 @@ class LoginActivity : ComponentActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Google Sign-In success!", Toast.LENGTH_SHORT).show()
-                    // TODO: Navigate to main screen
-                    // startActivity(Intent(this, MainActivity::class.java)); finish()
+                    startActivity(Intent(this, HomeActivity::class.java))
+                    finish()
                 } else {
                     Toast.makeText(this, task.exception?.message ?: "Sign-In failed", Toast.LENGTH_SHORT).show()
                 }

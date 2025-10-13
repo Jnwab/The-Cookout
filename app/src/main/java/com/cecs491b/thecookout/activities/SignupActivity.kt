@@ -42,6 +42,7 @@ class SignupActivity: ComponentActivity() {
                             handleSignup(email, password, displayName)
                         },
                         onBackToLoginClick = {
+                            startActivity(Intent(this, LoginActivity::class.java))
                             finish()
                         }
 
@@ -58,7 +59,7 @@ class SignupActivity: ComponentActivity() {
         }
 
         if (password.length < 10) {
-            Toast.makeText(this, "Password must be atleast 10 characters", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Password must be at least 10 characters", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -66,9 +67,8 @@ class SignupActivity: ComponentActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful){
                     Toast.makeText(this, "Account creation successful.", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, HomeActivity::class.java))
                 }
-
-
             }
     }
 
