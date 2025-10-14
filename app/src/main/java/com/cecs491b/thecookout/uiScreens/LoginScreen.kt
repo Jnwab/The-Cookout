@@ -159,7 +159,7 @@ fun LoginScreen(
                 Text("Forgot Password")
             }
 
-            Spacer(Modifier.height(200.dp))
+            Spacer(Modifier.height(50.dp))
 
             TextButton(
                 onClick = onCreateAccountClick
@@ -170,6 +170,8 @@ fun LoginScreen(
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
+
+            Spacer(Modifier.height(150.dp))
         }
     }
 }
