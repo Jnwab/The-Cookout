@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
@@ -24,20 +25,31 @@ import com.google.firebase.auth.auth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.database
 import com.google.firebase.storage.storage
-import com.cecs491b.thecookout.models.User
-import com.cecs491b.thecookout.activities.ForgotPasswordActivity
 
 class LoginActivity : ComponentActivity() {
+
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
     private lateinit var googleClient: GoogleSignInClient
-    private val RC_SIGN_IN = 1001
+
+    // Activity Result API launcher for Google Sign-In
+    private val googleSignInLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)!!
+            firebaseAuthWithGoogle(account.idToken!!)
+        } catch (e: ApiException) {
+            Toast.makeText(this, "Google sign-in failed: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Use emulators when running debug builds
         val isDebug = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
-
         if (isDebug) {
             Firebase.database.useEmulator("10.0.2.2", 9000)
             Firebase.auth.useEmulator("10.0.2.2", 9100)
@@ -56,81 +68,48 @@ class LoginActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TheCookoutTheme {
-                Surface(modifier = Modifier.Companion.fillMaxSize()) {
+                Surface(modifier = Modifier.fillMaxSize()) {
                     LoginScreen(
-                        onLoginClick = { email, password ->
-                            handleLogin(email, password)
-                        },
+                        onLoginClick = { email, password -> handleLogin(email, password) },
                         onForgotPasswordClick = {
                             startActivity(Intent(this, ForgotPasswordActivity::class.java))
                         },
                         onGoogleSignInClick = { launchGoogleSignIn() },
                         onSignupClick = {
                             startActivity(Intent(this, SignupActivity::class.java))
-                        },
-                        onPhoneAuthClick = {
-                            startActivity(Intent(this, PhoneAuthActivity::class.java))
                         }
-
+                        // NOTE: phone auth button was removed in the Composable to match the mockup
                     )
                 }
             }
         }
     }
 
-    private fun handleLogin(email:String, password: String){
-        if (email.isBlank()  || password.isBlank()){
+    private fun launchGoogleSignIn() {
+        googleSignInLauncher.launch(googleClient.signInIntent)
+    }
+
+    private fun handleLogin(email: String, password: String) {
+        if (email.isBlank() || password.isBlank()) {
             Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show()
             return
         }
 
         auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) {
-                task -> if (task.isSuccessful){
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
                     val firebaseUser = auth.currentUser
-                    if (firebaseUser != null){
-                        getUserProfile(firebaseUser.uid)
-                    }
+                    firebaseUser?.let { getUserProfile(it.uid) }
                     Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
-
-                // TODO: Navigate to main screen activity: MainScreenActivity
-                // startActivity(Intent(this,mainScreenActivity::class.java))
-                // finish()
-
-            } else{
-                Toast.makeText(this, "Authentication failed </3 : ${task.exception?.message}", Toast.LENGTH_SHORT).show()
-              }
+                    // TODO: startActivity(Intent(this, MainActivity::class.java)); finish()
+                } else {
+                    Toast.makeText(
+                        this,
+                        "Authentication failed: ${task.exception?.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
-
-        Toast.makeText(this, "Login clicked", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun handleForgotPassword(){
-        // TODO Navigates to Forgot Password Screen or show Dialog
-        Toast.makeText(this, "Forgot password clicked", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun handleCreateAccount(){
-        // TODO Navigates to Signup Activity
-        // startActivity(Intent(this, SignupActivity::class.java))
-        Toast.makeText(this, "Create account clicked", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun launchGoogleSignIn() {
-        startActivityForResult(googleClient.signInIntent, RC_SIGN_IN)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == RC_SIGN_IN) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-            try {
-                val account = task.getResult(ApiException::class.java)!!
-                firebaseAuthWithGoogle(account.idToken!!)
-            } catch (e: ApiException) {
-                Toast.makeText(this, "Google sign-in failed: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
     }
 
     private fun firebaseAuthWithGoogle(idToken: String) {
@@ -139,32 +118,36 @@ class LoginActivity : ComponentActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Google Sign-In success!", Toast.LENGTH_SHORT).show()
-                    // TODO: Navigate to main screen
-                    // startActivity(Intent(this, MainActivity::class.java)); finish()
+                    // TODO: startActivity(Intent(this, MainActivity::class.java)); finish()
                 } else {
-                    Toast.makeText(this, task.exception?.message ?: "Sign-In failed", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        task.exception?.message ?: "Sign-In failed",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
     }
+
     private fun getUserProfile(uid: String) {
         val userRef = database.reference.child("users").child(uid)
-
-        userRef.get().addOnSuccessListener { snapshot ->
-            if (snapshot.exists()) {
-                // User exists, update last login and navigate
-                updateUserLastLogin(uid)
-                Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
-                // TODO: Navigate to MainActivity
-                // startActivity(Intent(this, MainActivity::class.java))
-                // finish()
-            } else {
-                // Profile doesn't exist (shouldn't happen if they signed up properly)
-                Toast.makeText(this, "Profile not found. Please sign up first.", Toast.LENGTH_SHORT).show()
-                auth.signOut() // Sign them out
+        userRef.get()
+            .addOnSuccessListener { snapshot ->
+                if (snapshot.exists()) {
+                    updateUserLastLogin(uid)
+                    // TODO: navigate to Main
+                } else {
+                    Toast.makeText(
+                        this,
+                        "Profile not found. Please sign up first.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    auth.signOut()
+                }
             }
-        }.addOnFailureListener {
-            Toast.makeText(this, "Failed to load profile", Toast.LENGTH_SHORT).show()
-        }
+            .addOnFailureListener {
+                Toast.makeText(this, "Failed to load profile", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun updateUserLastLogin(uid: String) {
@@ -172,5 +155,4 @@ class LoginActivity : ComponentActivity() {
             .child("updatedAt")
             .setValue(System.currentTimeMillis())
     }
-
 }

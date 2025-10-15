@@ -1,62 +1,57 @@
 package com.cecs491b.thecookout.uiScreens
 
 import com.cecs491b.thecookout.R
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.ImeAction
-import com.cecs491b.thecookout.ui.theme.CookoutOrange
-import com.cecs491b.thecookout.ui.theme.DarkerOrange
-import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
-import android.content.Intent
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
-import com.cecs491b.thecookout.activities.ForgotPasswordActivity
+import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.HorizontalDivider
 
+// ---- Brand colors used in the mockup ----
+private val CookoutOrange = Color(0xFFFF6A00) // primary CTA
+private val LightGreyText = Color(0xFF9AA0A6)
 
 @Composable
-private fun GoogleSignInButton(
-    modifier: Modifier = Modifier,
-    text: String = "Sign in with Google",
-    enabled: Boolean = true,
-    onClick: () -> Unit
+private fun GoogleButton(
+    text: String = "Continue with Google",
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Button(
+    OutlinedButton(
         onClick = onClick,
-        enabled = enabled,
-        shape = RoundedCornerShape(20.dp),
         border = BorderStroke(1.dp, Color(0xFFDADCE0)),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.White,
-            contentColor = Color.Black,
-            disabledContainerColor = Color.White,
-            disabledContentColor = Color(0x61000000)
-        ),
-        contentPadding = PaddingValues(horizontal = 12.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
         modifier = modifier
             .height(48.dp)
-            .width(190.dp)
+            .fillMaxWidth()
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -68,7 +63,7 @@ private fun GoogleSignInButton(
                 contentDescription = "Google logo",
                 tint = Color.Unspecified,
                 modifier = Modifier
-                    .size(30.dp)
+                    .size(20.dp)
                     .padding(end = 12.dp)
             )
             Text(text)
@@ -76,26 +71,25 @@ private fun GoogleSignInButton(
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun LoginScreen(
-    onLoginClick: (email: String, password: String) -> Unit = {_,_ -> },
+    onLoginClick: (email: String, password: String) -> Unit = { _, _ -> },
     onForgotPasswordClick: () -> Unit = {},
     onGoogleSignInClick: () -> Unit = {},
-    onSignupClick: () -> Unit = {},
-    onPhoneAuthClick: () -> Unit = {}
+    onSignupClick: () -> Unit = {}
 ) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+    var rememberMe by rememberSaveable { mutableStateOf(false) }
+    var pwVisible by rememberSaveable { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFFFB923C),
-                        Color(0xFFFDBA74),
-                    )
+                    listOf(Color(0xFFFB923C), Color(0xFFFDBA74))
                 )
             )
     ) {
@@ -104,37 +98,33 @@ fun LoginScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            // Header with backdrop image
+            // Header with image + title/subtitle like mockup
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(288.dp)
+                    .height(300.dp)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.familycooking),
-                    contentDescription = "Food Brings Family together",
+                    contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-
+                // soft orange fade into background
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(
-                            brush = Brush.verticalGradient(
+                            Brush.verticalGradient(
                                 colors = listOf(
-                                    Color(0x1A7C2D12), // Lighter at top
-                                    Color(0x4DFB923C), // Medium orange
-                                    Color(0xCCFB923C), // Strong orange
-                                    Color(0xFFFB923C)  // Full orange at bottom
-                                ),
-                                startY = 300f,
-                                endY = Float.POSITIVE_INFINITY
+                                    Color(0x00000000),
+                                    Color(0x1AFF6A00),
+                                    Color(0x33FF6A00),
+                                    Color(0x66FF6A00)
+                                )
                             )
                         )
                 )
-
-
                 Column(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
@@ -143,12 +133,11 @@ fun LoginScreen(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(64.dp)
+                            .size(56.dp)
                             .background(
-                                color = Color.White.copy(alpha = 0.2f),
+                                color = Color.White.copy(alpha = 0.25f),
                                 shape = RoundedCornerShape(16.dp)
-                            )
-                            .padding(8.dp),
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
@@ -158,138 +147,159 @@ fun LoginScreen(
                             contentScale = ContentScale.Fit
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(
-                        text = "The Cookout",
-                        fontSize = 30.sp,
-                        color = Color.White
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = "Connect through Food!",
-                        fontSize = 18.sp,
-                        color = Color(0xFFFED7AA)
-                    )
+                    Spacer(Modifier.height(12.dp))
+                    Text("The Cookout", color = Color.White, fontSize = 28.sp)
+                    Spacer(Modifier.height(4.dp))
+                    Text("Share your recipes!", color = Color(0xFFFFE3C2), fontSize = 14.sp)
                 }
             }
 
-
+            // Card section lifted into the image like the mockup
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .offset(y = (-32).dp)
-                    .padding(horizontal = 24.dp),
-                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 24.dp)
+                    .offset(y = (-24).dp)
+                    .padding(horizontal = 16.dp),
+                shape = RoundedCornerShape(20.dp),
+                elevation = CardDefaults.cardElevation(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
+                    modifier = Modifier.padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Spacer(modifier = Modifier.height(8.dp))
-
+                    Text("Welcome back!", fontSize = 20.sp, color = Color(0xFF1F1F1F))
+                    Spacer(Modifier.height(4.dp))
                     Text(
-                        text = "Welcome back!",
-                        fontSize = 20.sp,
-                        color = Color(0xFFEA580C)
+                        "Sign in to your account to continue cooking",
+                        color = LightGreyText,
+                        fontSize = 13.sp,
+                        textAlign = TextAlign.Center
                     )
+                    Spacer(Modifier.height(20.dp))
 
-                    Spacer(modifier = Modifier.height(24.dp))
-
+                    // Email
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
                         label = { Text("Email") },
+                        placeholder = { Text("chef@cookout.com", color = LightGreyText) },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Email,
                             imeAction = ImeAction.Next
                         ),
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
                     )
 
                     Spacer(Modifier.height(12.dp))
 
+                    // Password with eye toggle like mockup
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
                         label = { Text("Password") },
-                        visualTransformation = PasswordVisualTransformation(),
+                        placeholder = { Text("Enter your password", color = LightGreyText) },
+                        singleLine = true,
+                        visualTransformation = if (pwVisible) VisualTransformation.None
+                        else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            IconButton(onClick = { pwVisible = !pwVisible }) {
+                                Icon(
+                                    imageVector = if (pwVisible) Icons.Filled.VisibilityOff
+                                    else Icons.Filled.Visibility,
+                                    contentDescription = null
+                                )
+                            }
+                        },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Password,
                             imeAction = ImeAction.Done
                         ),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
                     )
 
+                    Spacer(Modifier.height(8.dp))
+
+                    // Remember + Forgot row (left/right)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Checkbox(checked = rememberMe, onCheckedChange = { rememberMe = it })
+                            Text("Remember me")
+                        }
                         Text(
-                            "Forgot Password?",
-                            color = Color(0xFFEA580C),
-                            fontSize = 12.sp,
+                            "Forgot password?",
+                            color = CookoutOrange,
                             modifier = Modifier.clickable { onForgotPasswordClick() }
                         )
                     }
 
+                    Spacer(Modifier.height(12.dp))
+
+                    // Primary CTA – full width orange
+                    Button(
+                        onClick = { onLoginClick(email, password) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = CookoutOrange,
+                            contentColor = Color.White
+                        )
+                    ) { Text("Sign In") }
+
+                    // OR divider
+                    Spacer(Modifier.height(12.dp))
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
+                        Divider(modifier = Modifier.weight(1f))
+                        Text("  or  ", color = LightGreyText)
+                        Divider(modifier = Modifier.weight(1f))
+                    }
+                    Spacer(Modifier.height(12.dp))
+
+                    // Google button – full width outlined
+                    GoogleButton(onClick = onGoogleSignInClick, modifier = Modifier.fillMaxWidth())
+
+                    Spacer(Modifier.height(16.dp))
+
+                    // Sign up line
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Don't have an account? ")
                         Text(
-                            "New Here? Create Account",
-                            color = Color(0xFFEA580C),
-                            fontSize = 12.sp,
+                            "Sign up",
+                            color = CookoutOrange,
                             modifier = Modifier.clickable { onSignupClick() }
                         )
                     }
-
-                    Spacer(Modifier.height(20.dp))
-
-                    Button(
-                        onClick = { onLoginClick(email, password) },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        ),
-                        modifier = Modifier
-                            .height(48.dp)
-                            .width(200.dp)
-                    ) {
-                        Text("Log in")
-                    }
-
-                    Spacer(Modifier.height(12.dp))
-
-                    GoogleSignInButton(
-                        onClick = onGoogleSignInClick,
-                        modifier = Modifier
-                    )
-
-                    Spacer(Modifier.height(12.dp))
-
-                    OutlinedButton(
-                        onClick = onPhoneAuthClick,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Sign in with Phone Number")
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
                 }
             }
+
+            // Footer
+            Spacer(Modifier.height(8.dp))
+            Text(
+                "© 2025 The Cookout. All rights reserved.",
+                color = LightGreyText,
+                fontSize = 12.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            )
         }
     }
 }
