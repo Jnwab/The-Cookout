@@ -23,17 +23,16 @@ import com.cecs491b.thecookout.ui.theme.CookoutOrange
 import com.cecs491b.thecookout.ui.theme.DarkerOrange
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import com.cecs491b.thecookout.activities.ForgotPasswordActivity
-
 
 @Composable
 private fun GoogleSignInButton(
@@ -77,8 +76,42 @@ private fun GoogleSignInButton(
 }
 
 @Composable
+private fun TikTokSignInButton(
+    modifier: Modifier = Modifier,
+    text: String = "Continue with TikTok",
+    startUrl: String = "https://lakita-frothiest-meanderingly.ngrok-free.dev/tiktokStart"
+) {
+    val context = LocalContext.current
+    Button(
+        onClick = {
+            context.startActivity(
+                Intent(Intent.ACTION_VIEW, Uri.parse(startUrl))
+            )
+        },
+        shape = RoundedCornerShape(20.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF000000),
+            contentColor = Color.White
+        ),
+        contentPadding = PaddingValues(horizontal = 12.dp),
+        modifier = modifier
+            .height(48.dp)
+            .width(190.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // If you add a TikTok icon later, put it here similar to Google.
+            Text(text)
+        }
+    }
+}
+
+@Composable
 fun LoginScreen(
-    onLoginClick: (email: String, password: String) -> Unit = {_,_ -> },
+    onLoginClick: (email: String, password: String) -> Unit = { _, _ -> },
     onForgotPasswordClick: () -> Unit = {},
     onGoogleSignInClick: () -> Unit = {},
     onSignupClick: () -> Unit = {},
@@ -123,17 +156,16 @@ fun LoginScreen(
                         .background(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    Color(0x1A7C2D12), // Lighter at top
-                                    Color(0x4DFB923C), // Medium orange
-                                    Color(0xCCFB923C), // Strong orange
-                                    Color(0xFFFB923C)  // Full orange at bottom
+                                    Color(0x1A7C2D12),
+                                    Color(0x4DFB923C),
+                                    Color(0xCCFB923C),
+                                    Color(0xFFFB923C)
                                 ),
                                 startY = 300f,
                                 endY = Float.POSITIVE_INFINITY
                             )
                         )
                 )
-
 
                 Column(
                     modifier = Modifier
@@ -176,7 +208,6 @@ fun LoginScreen(
                     )
                 }
             }
-
 
             Card(
                 modifier = Modifier
@@ -277,6 +308,11 @@ fun LoginScreen(
                         onClick = onGoogleSignInClick,
                         modifier = Modifier
                     )
+
+                    Spacer(Modifier.height(12.dp))
+
+                    // ---- TikTok button UNDER Google ----
+                    TikTokSignInButton()
 
                     Spacer(Modifier.height(12.dp))
 

@@ -1,0 +1,12 @@
+{
+  "name": "tiktok-auth-local",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": { "start": "node index.js" },
+  "dependencies": {
+    "express": "^4.19.2",
+    "firebase-admin": "^12.5.0",
+    "dotenv": "^16.4.5"
+  }
+}

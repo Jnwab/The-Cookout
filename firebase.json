@@ -1,10 +1,25 @@
 {
   "emulators": {
-    "auth":      { "host": "127.0.0.1", "port": 9100 },
-    "firestore": { "host": "127.0.0.1", "port": 8080 },
-    "database":  { "host": "127.0.0.1", "port": 9000 },
-    "storage":   { "host": "127.0.0.1", "port": 9199 },
-    "ui":        { "enabled": true, "port": 4001 }
+    "auth": {
+      "host": "127.0.0.1",
+      "port": 9100
+    },
+    "firestore": {
+      "host": "127.0.0.1",
+      "port": 8080
+    },
+    "database": {
+      "host": "127.0.0.1",
+      "port": 9000
+    },
+    "storage": {
+      "host": "127.0.0.1",
+      "port": 9199
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4001
+    }
   },
   "database": {
     "rules": "database.rules.json"
@@ -17,5 +32,22 @@
   },
   "storage": {
     "rules": "storage.rules"
-  }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint",
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ]
+    }
+  ]
 }
