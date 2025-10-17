@@ -25,7 +25,6 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.database
 import com.google.firebase.storage.storage
 import com.cecs491b.thecookout.models.User
-import com.cecs491b.thecookout.activities.ForgotPasswordActivity
 
 class LoginActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -37,7 +36,6 @@ class LoginActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val isDebug = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
-
         if (isDebug) {
             Firebase.database.useEmulator("10.0.2.2", 9000)
             Firebase.auth.useEmulator("10.0.2.2", 9100)
@@ -46,6 +44,8 @@ class LoginActivity : ComponentActivity() {
 
         auth = Firebase.auth
         database = Firebase.database
+
+        handleDeepLink(intent)
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
@@ -56,11 +56,9 @@ class LoginActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TheCookoutTheme {
-                Surface(modifier = Modifier.Companion.fillMaxSize()) {
+                Surface(modifier = Modifier.fillMaxSize()) {
                     LoginScreen(
-                        onLoginClick = { email, password ->
-                            handleLogin(email, password)
-                        },
+                        onLoginClick = { email, password -> handleLogin(email, password) },
                         onForgotPasswordClick = {
                             startActivity(Intent(this, ForgotPasswordActivity::class.java))
                         },
@@ -71,11 +69,41 @@ class LoginActivity : ComponentActivity() {
                         onPhoneAuthClick = {
                             startActivity(Intent(this, PhoneAuthActivity::class.java))
                         }
-
                     )
                 }
             }
         }
+    }
+
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        intent?.let { handleDeepLink(it) }
+    }
+
+    private fun handleDeepLink(intent: Intent) {
+        val data = intent.data ?: return
+        val isCookoutCallback =
+            data.scheme == "cookout" && data.host == "auth" && data.path == "/callback"
+
+        if (!isCookoutCallback) return
+
+        val token = data.getQueryParameter("token")
+        if (token.isNullOrBlank()) {
+            Toast.makeText(this, "Missing token from TikTok callback.", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        Firebase.auth.signInWithCustomToken(token)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Signed in with TikTok!", Toast.LENGTH_SHORT).show()
+                // TODO: Navigate to your main screen here
+                // startActivity(Intent(this, MainActivity::class.java))
+                // finish()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "TikTok login failed: ${e.message}", Toast.LENGTH_LONG).show()
+            }
     }
 
     private fun handleLogin(email:String, password: String){
@@ -85,34 +113,28 @@ class LoginActivity : ComponentActivity() {
         }
 
         auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) {
-                task -> if (task.isSuccessful){
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful){
                     val firebaseUser = auth.currentUser
                     if (firebaseUser != null){
                         getUserProfile(firebaseUser.uid)
                     }
                     Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
-
-                // TODO: Navigate to main screen activity: MainScreenActivity
-                // startActivity(Intent(this,mainScreenActivity::class.java))
-                // finish()
-
-            } else{
-                Toast.makeText(this, "Authentication failed </3 : ${task.exception?.message}", Toast.LENGTH_SHORT).show()
-              }
+                    // TODO: Navigate to main screen
+                    // startActivity(Intent(this, MainActivity::class.java)); finish()
+                } else {
+                    Toast.makeText(this, "Authentication failed </3 : ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
             }
 
         Toast.makeText(this, "Login clicked", Toast.LENGTH_SHORT).show()
     }
 
     private fun handleForgotPassword(){
-        // TODO Navigates to Forgot Password Screen or show Dialog
         Toast.makeText(this, "Forgot password clicked", Toast.LENGTH_SHORT).show()
     }
 
     private fun handleCreateAccount(){
-        // TODO Navigates to Signup Activity
-        // startActivity(Intent(this, SignupActivity::class.java))
         Toast.makeText(this, "Create account clicked", Toast.LENGTH_SHORT).show()
     }
 
@@ -146,21 +168,20 @@ class LoginActivity : ComponentActivity() {
                 }
             }
     }
+
     private fun getUserProfile(uid: String) {
         val userRef = database.reference.child("users").child(uid)
 
         userRef.get().addOnSuccessListener { snapshot ->
             if (snapshot.exists()) {
-                // User exists, update last login and navigate
                 updateUserLastLogin(uid)
                 Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
                 // TODO: Navigate to MainActivity
                 // startActivity(Intent(this, MainActivity::class.java))
                 // finish()
             } else {
-                // Profile doesn't exist (shouldn't happen if they signed up properly)
                 Toast.makeText(this, "Profile not found. Please sign up first.", Toast.LENGTH_SHORT).show()
-                auth.signOut() // Sign them out
+                auth.signOut()
             }
         }.addOnFailureListener {
             Toast.makeText(this, "Failed to load profile", Toast.LENGTH_SHORT).show()
@@ -172,5 +193,4 @@ class LoginActivity : ComponentActivity() {
             .child("updatedAt")
             .setValue(System.currentTimeMillis())
     }
-
 }
