@@ -1,16 +1,23 @@
 package com.cecs491b.thecookout.uiScreens
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -24,12 +31,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.cecs491b.thecookout.R
 import com.cecs491b.thecookout.ui.theme.CookoutOrange
 import com.cecs491b.thecookout.ui.theme.DarkerOrange
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
@@ -46,99 +57,144 @@ fun SignupScreen(
     var displayName by rememberSaveable { mutableStateOf("") }
     var phoneNumber by rememberSaveable { mutableStateOf("") }
 
+
+
     Scaffold { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 12.dp, vertical = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    listOf(Color(0xFFFB923C), Color(0xFFFDBA74))
+                )
+            )
         ) {
-            Spacer(Modifier.height(5.dp))
-
-            Text(
-                "Sign up here",
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            DarkerOrange,
-                            CookoutOrange,
-                            DarkerOrange
-                        )
-                    )
-                ),
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(Modifier.height(24.dp))
-
-            OutlinedTextField(
-                value = displayName,
-                onValueChange = { displayName = it },
-                label = { Text("Display name") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(5.dp))
-
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(5.dp))
-
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                value = phoneNumber,
-                onValueChange = { phoneNumber = it },
-                label = { Text("Phone number") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone,
-                    imeAction = ImeAction.Done),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(20.dp))
-
-            Button(
-                onClick = {onSignupClick(email, password, displayName)},
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ),
+            Box(
                 modifier = Modifier
-                    .height(48.dp)
-                    .width(200.dp)
+                    .fillMaxWidth()
+                    .height(300.dp)
             ) {
-                Text("Create Account")
-            }
+                Image(
+                    painter = painterResource(id = R.drawable.signup_stock),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+                }
 
-            Spacer(Modifier.height(20.dp))
+            Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
+                Spacer(Modifier.height(215.dp))
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset(y = (-24).dp)
+                        .padding(horizontal = 16.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(padding)
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Spacer(Modifier.height(5.dp))
 
-            TextButton(
-                onClick = onBackToLogin,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Back to Login", color = CookoutOrange)
+                        Text(
+                            "Sign up here",
+                            style = MaterialTheme.typography.headlineLarge.copy(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        DarkerOrange,
+                                        CookoutOrange,
+                                        DarkerOrange
+                                    )
+                                )
+                            ),
+                            textAlign = TextAlign.Center
+                        )
+
+                        Spacer(Modifier.height(24.dp))
+
+                        OutlinedTextField(
+                            value = displayName,
+                            onValueChange = { displayName = it },
+                            label = { Text("Display name") },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Next
+                            ),
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(Modifier.height(5.dp))
+
+                        OutlinedTextField(
+                            value = email,
+                            onValueChange = { email = it },
+                            label = { Text("Email") },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Email,
+                                imeAction = ImeAction.Next
+                            ),
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(Modifier.height(5.dp))
+
+                        OutlinedTextField(
+                            value = password,
+                            onValueChange = { password = it },
+                            label = { Text("Password") },
+                            visualTransformation = PasswordVisualTransformation(),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Password,
+                                imeAction = ImeAction.Next
+                            ),
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        OutlinedTextField(
+                            value = phoneNumber,
+                            onValueChange = { phoneNumber = it },
+                            label = { Text("Phone number") },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Phone,
+                                imeAction = ImeAction.Done
+                            ),
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(Modifier.height(20.dp))
+
+                        Button(
+                            onClick = { onSignupClick(email, password, displayName) },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            ),
+                            modifier = Modifier
+                                .height(48.dp)
+                                .width(200.dp)
+                        ) {
+                            Text("Create Account")
+                        }
+
+                        Spacer(Modifier.height(20.dp))
+
+                        TextButton(
+                            onClick = onBackToLogin,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Back to Login", color = CookoutOrange)
+                        }
+                    }
+                }
             }
         }
     }

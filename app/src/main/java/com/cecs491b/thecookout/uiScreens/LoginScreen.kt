@@ -35,8 +35,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.HorizontalDivider
 
 // ---- Brand colors used in the mockup ----
-private val CookoutOrange = Color(0xFFFF6A00) // primary CTA
-private val LightGreyText = Color(0xFF9AA0A6)
+ val CookoutOrange = Color(0xFFFF6A00) // primary CTA
+val LightGreyText = Color(0xFF9AA0A6)
 
 @Composable
 private fun GoogleButton(
