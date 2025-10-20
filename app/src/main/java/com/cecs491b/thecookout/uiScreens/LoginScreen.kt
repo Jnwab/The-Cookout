@@ -103,7 +103,7 @@ private fun TikTokSignInButton(
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-            // If you add a TikTok icon later, put it here similar to Google.
+            // If add a TikTok icon later, put it here similar to Google.
             Text(text)
         }
     }
