@@ -10,14 +10,27 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForgotPasswordScreen(
-    onSendReset: (String) -> Unit,
-    onClose: () -> Unit
+    onSendReset: (String) -> Unit = {},
+    onClose: () -> Unit = {}
 ) {
+    val vm: ForgotPasswordViewModel = viewModel()
+    val remaining by vm.remainingSeconds.collectAsState()
+    val context = LocalContext.current
+    val auth: FirebaseAuth = Firebase.auth
+
     var email by remember { mutableStateOf("") }
 
     Scaffold(
@@ -52,11 +65,26 @@ fun ForgotPasswordScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            val canSend = remaining == 0L && email.isNotBlank()
+
             Button(
-                onClick = { onSendReset(email) },
-                modifier = Modifier.fillMaxWidth()
+                onClick = {
+                    vm.sendReset(email, auth) { ok, msg ->
+                        Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                    }
+                },
+                enabled = canSend,
+                modifier = Modifier
+                    .height(48.dp)
+                    .fillMaxWidth()
             ) {
-                Text("Send reset email")
+                if (remaining == 0L) {
+                    Text("Send Reset Link")
+                } else {
+                    val m = remaining / 60
+                    val s = remaining % 60
+                    Text("Resend in %d:%02d".format(m, s))
+                }
             }
 
             TextButton(onClick = onClose) {
