@@ -18,6 +18,9 @@ import androidx.compose.ui.platform.LocalContext
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.cecs491b.thecookout.support.openSupportEmail
+import androidx.compose.material3.TextButton
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -89,6 +92,20 @@ fun ForgotPasswordScreen(
 
             TextButton(onClick = onClose) {
                 Text("Back to Login")
+            }
+
+            // --- Contact Support ---
+            TextButton(
+                onClick = {
+                    openSupportEmail(
+                        context = context,
+                        subjectExtra = "Password reset help",
+                        bodyExtra = "I tried resetting my password but…"
+                    )
+                },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Text("Need help? Contact Support")
             }
         }
     }

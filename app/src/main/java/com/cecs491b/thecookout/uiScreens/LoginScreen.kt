@@ -33,6 +33,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import com.cecs491b.thecookout.activities.ForgotPasswordActivity
+import com.cecs491b.thecookout.support.openSupportEmail
+import androidx.compose.material3.TextButton
 
 @Composable
 private fun GoogleSignInButton(
@@ -324,6 +326,21 @@ fun LoginScreen(
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
+
+                    // --- Contact Support ---
+                    val ctx = LocalContext.current
+                    TextButton(
+                        onClick = {
+                            openSupportEmail(
+                                context = ctx,
+                                subjectExtra = "Login help",
+                                bodyExtra = "Describe what happened, steps to reproduce, and any screenshots."
+                            )
+                        },
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        Text("Contact Support")
+                    }
                 }
             }
         }
