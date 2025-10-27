@@ -34,13 +34,12 @@ fun openSupportEmail(
     val body = if (bodyExtra.isNotBlank()) "$bodyExtra\n\n$deviceInfo" else deviceInfo
 
     // Prefer ACTION_SENDTO with mailto: so only email apps show up
-    val uri = Uri.parse("mailto:${SupportConfig.SUPPORT_EMAIL}")
-        .buildUpon()
-        .appendQueryParameter("subject", subject)
-        .appendQueryParameter("body", body)
-        .build()
-
-    val intent = Intent(Intent.ACTION_SENDTO, uri)
+    val intent = Intent(Intent.ACTION_SENDTO).apply {
+        data = Uri.parse("mailto:") // ensures only email apps handle this
+        putExtra(Intent.EXTRA_EMAIL, arrayOf(SupportConfig.SUPPORT_EMAIL))
+        putExtra(Intent.EXTRA_SUBJECT, subject)
+        putExtra(Intent.EXTRA_TEXT, body)
+    }
 
     try {
         context.startActivity(intent)
