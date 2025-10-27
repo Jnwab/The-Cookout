@@ -1,5 +1,6 @@
 package com.cecs491b.thecookout.activities
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,7 +18,12 @@ class HomeActivity : ComponentActivity() {
         setContent {
             TheCookoutTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    HomeScreen()
+                    HomeScreen(
+                        onCreateRecipeClick = {
+                            startActivity(Intent(this, RecipeCreationActivity::class.java))
+                            finish()
+                        }
+                    )
                 }
             }
         }
