@@ -1,5 +1,7 @@
 ## Firebase Emulator Test Account Usage Steps
 
+NOTE: YOU WILL NEED TO PULL FROM MAIN or just import this folder into your branch. Thanks!
+
 1.  Using this command via terminal (bash) will auto-load the test account needed for testing:
     ```firebase emulators:start --import=./emulator-data```
 
