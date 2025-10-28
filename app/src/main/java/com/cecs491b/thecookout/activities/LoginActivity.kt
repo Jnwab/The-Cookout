@@ -25,6 +25,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.database
 import com.google.firebase.storage.storage
+import com.cecs491b.thecookout.activities.HomeActivity
 
 class LoginActivity : ComponentActivity() {
 
@@ -102,6 +103,8 @@ class LoginActivity : ComponentActivity() {
                     firebaseUser?.let { getUserProfile(it.uid) }
                     Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
                     // TODO: startActivity(Intent(this, MainActivity::class.java)); finish()
+                    startActivity(Intent(this, HomeActivity::class.java))
+                    finish()
                 } else {
                     Toast.makeText(
                         this,
@@ -119,6 +122,8 @@ class LoginActivity : ComponentActivity() {
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Google Sign-In success!", Toast.LENGTH_SHORT).show()
                     // TODO: startActivity(Intent(this, MainActivity::class.java)); finish()
+                    startActivity(Intent(this, HomeActivity::class.java))
+                    finish()
                 } else {
                     Toast.makeText(
                         this,
