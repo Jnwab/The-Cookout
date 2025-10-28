@@ -12,3 +12,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+tools/support/serviceAccountKey.json
+tools/support/node_modules
