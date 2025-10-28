@@ -21,21 +21,21 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
-import com.google.firebase.database.database
 import com.google.firebase.storage.storage
 import com.cecs491b.thecookout.uiScreens.SignupScreen
 import com.cecs491b.thecookout.models.User
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 
 
 class SignupActivity: ComponentActivity() {
     private lateinit var auth: FirebaseAuth
-    private lateinit var database: FirebaseDatabase
+    private lateinit var database: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle? ){
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
-        database = Firebase.database
+        database = Firebase.firestore
 
         setContent {
             TheCookoutTheme {
@@ -74,7 +74,6 @@ class SignupActivity: ComponentActivity() {
                 if (task.isSuccessful) {
                     val firebaseUser = auth.currentUser
                     if (firebaseUser != null) {
-                        // Create user profile
                         val user = User(
                             uid = firebaseUser.uid,
                             email = email,
@@ -86,7 +85,6 @@ class SignupActivity: ComponentActivity() {
                             updatedAt = System.currentTimeMillis()
                         )
 
-                        // Save to database
                         saveUserToDatabase(user)
                     }
                 } else {
@@ -109,11 +107,11 @@ class SignupActivity: ComponentActivity() {
     }
 
     private fun saveUserToDatabase(user: User) {
-        database.reference.child("users").child(user.uid)
-            .setValue(user)
+        database.collection("users").document(user.uid)
+            .set(user)
             .addOnSuccessListener {
                 Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show()
-                finish() // Return to login
+                finish()
             }
             .addOnFailureListener { e ->
                 Toast.makeText(

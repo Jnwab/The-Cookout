@@ -56,10 +56,9 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     // Added dependencies for Firebase Authentication library & other Firebase SDK
     implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.26")
-    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     // Added viewmodel dependencies
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")

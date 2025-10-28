@@ -46,6 +46,14 @@
             android:name=".activities.PhoneAuthActivity"
             android:exported="false"/>
         <activity android:name=".activities.ForgotPasswordActivity" />
+        <activity
+            android:name=".activities.EditProfileActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activities.ProfileActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>
