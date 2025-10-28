@@ -14,3 +14,6 @@
 local.properties
 tools/support/serviceAccountKey.json
 tools/support/node_modules
+server/.env
+server/serviceAccountKey.json
+server/node_modules
