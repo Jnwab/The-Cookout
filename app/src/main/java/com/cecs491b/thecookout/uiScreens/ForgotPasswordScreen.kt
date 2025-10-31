@@ -15,6 +15,17 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.cecs491b.thecookout.support.openSupportEmail
+import androidx.compose.material3.TextButton
+
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -25,9 +36,14 @@ import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForgotPasswordScreen(
-    onSendReset: (String) -> Unit,
-    onClose: () -> Unit
+    onSendReset: (String) -> Unit = {},
+    onClose: () -> Unit = {}
 ) {
+    val vm: ForgotPasswordViewModel = viewModel()
+    val remaining by vm.remainingSeconds.collectAsState()
+    val context = LocalContext.current
+    val auth: FirebaseAuth = Firebase.auth
+
     var email by remember { mutableStateOf("") }
 
     Scaffold(
@@ -84,17 +100,46 @@ fun ForgotPasswordScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Button(
-                        onClick = { onSendReset(email) },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Send reset email")
+            val canSend = remaining == 0L && email.isNotBlank()
+
+            Button(
+                onClick = {
+                    vm.sendReset(email, auth) { ok, msg ->
+                        Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                     }
+                },
+                enabled = canSend,
+                modifier = Modifier
+                    .height(48.dp)
+                    .fillMaxWidth()
+            ) {
+                if (remaining == 0L) {
+                    Text("Send Reset Link")
+                } else {
+                    val m = remaining / 60
+                    val s = remaining % 60
+                    Text("Resend in %d:%02d".format(m, s))
+                }
+            }
 
                     TextButton(onClick = onClose) {
                         Text("Back to Login")
                     }
                 }
+            }
+
+            // --- Contact Support ---
+            TextButton(
+                onClick = {
+                    openSupportEmail(
+                        context = context,
+                        subjectExtra = "Password reset help",
+                        bodyExtra = "I tried resetting my password but…"
+                    )
+                },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Text("Need help? Contact Support")
             }
         }
     }

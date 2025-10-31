@@ -1,7 +1,8 @@
 package com.cecs491b.thecookout.uiScreens
 
-import com.cecs491b.thecookout.R
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -9,6 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -21,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -30,24 +33,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cecs491b.thecookout.R
+import com.cecs491b.thecookout.support.openSupportEmail
+import com.cecs491b.thecookout.ui.theme.CookoutOrange
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.HorizontalDivider
 
-// ---- Brand colors used in the mockup ----
- val CookoutOrange = Color(0xFFFF6A00) // primary CTA
-val LightGreyText = Color(0xFF9AA0A6)
+// Light grey text color used in the UI
+private val LightGreyText = Color(0xFF9AA0A6)
 
 @Composable
 private fun GoogleButton(
     text: String = "Continue with Google",
     onClick: () -> Unit,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     OutlinedButton(
         onClick = onClick,
+        enabled = enabled,
+        shape = RoundedCornerShape(20.dp),
         border = BorderStroke(1.dp, Color(0xFFDADCE0)),
-        shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
         modifier = modifier
             .height(48.dp)
@@ -62,21 +67,53 @@ private fun GoogleButton(
                 painter = painterResource(id = R.drawable.ic_google_logo),
                 contentDescription = "Google logo",
                 tint = Color.Unspecified,
-                modifier = Modifier
-                    .size(20.dp)
-                    .padding(end = 12.dp)
+                modifier = Modifier.size(20.dp)
             )
+            Spacer(Modifier.width(12.dp))
             Text(text)
         }
     }
 }
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+private fun TikTokSignInButton(
+    modifier: Modifier = Modifier,
+    text: String = "Continue with TikTok",
+    startUrl: String = "https://lakita-frothiest-meanderingly.ngrok-free.dev/tiktokStart"
+) {
+    val context = LocalContext.current
+    Button(
+        onClick = {
+            context.startActivity(
+                Intent(Intent.ACTION_VIEW, Uri.parse(startUrl))
+            )
+        },
+        shape = RoundedCornerShape(20.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF000000),
+            contentColor = Color.White
+        ),
+        contentPadding = PaddingValues(horizontal = 12.dp),
+        modifier = modifier
+            .height(48.dp)
+            .fillMaxWidth()
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text)
+        }
+    }
+}
+
 @Composable
 fun LoginScreen(
     onLoginClick: (email: String, password: String) -> Unit = { _, _ -> },
     onForgotPasswordClick: () -> Unit = {},
     onGoogleSignInClick: () -> Unit = {},
+    onPhoneAuthClick: () -> Unit = {},
     onSignupClick: () -> Unit = {}
 ) {
     var email by rememberSaveable { mutableStateOf("") }
@@ -98,7 +135,7 @@ fun LoginScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            // Header with image + title/subtitle like mockup
+            // Header with image + title/subtitle
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -110,21 +147,24 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-                // soft orange fade into background
+                // Soft orange fade into background
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(
-                            Brush.verticalGradient(
+                            brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    Color(0x00000000),
-                                    Color(0x1AFF6A00),
-                                    Color(0x33FF6A00),
-                                    Color(0x66FF6A00)
-                                )
+                                    Color(0x1A7C2D12),
+                                    Color(0x4DFB923C),
+                                    Color(0xCCFB923C),
+                                    Color(0xFFFB923C)
+                                ),
+                                startY = 300f,
+                                endY = Float.POSITIVE_INFINITY
                             )
                         )
                 )
+
                 Column(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
@@ -154,7 +194,7 @@ fun LoginScreen(
                 }
             }
 
-            // Card section lifted into the image like the mockup
+            // Card section
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -195,7 +235,7 @@ fun LoginScreen(
 
                     Spacer(Modifier.height(12.dp))
 
-                    // Password with eye toggle like mockup
+                    // Password with eye toggle
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
@@ -209,7 +249,7 @@ fun LoginScreen(
                                 Icon(
                                     imageVector = if (pwVisible) Icons.Filled.VisibilityOff
                                     else Icons.Filled.Visibility,
-                                    contentDescription = null
+                                    contentDescription = if (pwVisible) "Hide password" else "Show password"
                                 )
                             }
                         },
@@ -223,28 +263,29 @@ fun LoginScreen(
 
                     Spacer(Modifier.height(8.dp))
 
-                    // Remember + Forgot row (left/right)
+                    // Remember me + Forgot password row
                     Row(
                         modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.weight(1f)
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Checkbox(checked = rememberMe, onCheckedChange = { rememberMe = it })
-                            Text("Remember me")
+                            Text("Remember me", fontSize = 14.sp)
                         }
                         Text(
                             "Forgot password?",
                             color = CookoutOrange,
+                            fontSize = 14.sp,
                             modifier = Modifier.clickable { onForgotPasswordClick() }
                         )
                     }
 
                     Spacer(Modifier.height(12.dp))
 
-                    // Primary CTA – full width orange
+                    // Primary Sign In button
                     Button(
                         onClick = { onLoginClick(email, password) },
                         modifier = Modifier
@@ -255,7 +296,9 @@ fun LoginScreen(
                             containerColor = CookoutOrange,
                             contentColor = Color.White
                         )
-                    ) { Text("Sign In") }
+                    ) {
+                        Text("Sign In")
+                    }
 
                     // OR divider
                     Spacer(Modifier.height(12.dp))
@@ -263,43 +306,62 @@ fun LoginScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Divider(modifier = Modifier.weight(1f))
+                        HorizontalDivider(modifier = Modifier.weight(1f))
                         Text("  or  ", color = LightGreyText)
-                        Divider(modifier = Modifier.weight(1f))
+                        HorizontalDivider(modifier = Modifier.weight(1f))
                     }
                     Spacer(Modifier.height(12.dp))
 
-                    // Google button – full width outlined
+                    // Google button
                     GoogleButton(onClick = onGoogleSignInClick, modifier = Modifier.fillMaxWidth())
 
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(12.dp))
 
-                    // Sign up line
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
+                    // TikTok button
+                    TikTokSignInButton(modifier = Modifier.fillMaxWidth())
+
+                    Spacer(Modifier.height(12.dp))
+
+                    // Phone auth / Sign up button
+                    OutlinedButton(
+                        onClick = onSignupClick,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, Color(0xFFDADCE0))
+                    ) {
+                        Text("Don't have an account? ", color = Color(0xFF5F6368))
+                        Text("Sign up", color = CookoutOrange)
+                    }
+
+                    Spacer(Modifier.height(12.dp))
+
+                    // Contact Support
+                    val ctx = LocalContext.current
+                    TextButton(
+                        onClick = {
+                            openSupportEmail(
+                                context = ctx,
+                                subjectExtra = "Login help",
+                                bodyExtra = "Describe what happened, steps to reproduce, and any screenshots."
+                            )
+                        },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Don't have an account? ")
-                        Text(
-                            "Sign up",
-                            color = CookoutOrange,
-                            modifier = Modifier.clickable { onSignupClick() }
-                        )
+                        Text("Contact Support", color = CookoutOrange)
                     }
+
+                    Spacer(Modifier.height(8.dp))
+
+                    // Footer
+                    Text(
+                        "© 2025 The Cookout. All rights reserved.",
+                        color = LightGreyText,
+                        fontSize = 12.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
-
-            // Footer
-            Spacer(Modifier.height(8.dp))
-            Text(
-                "© 2025 The Cookout. All rights reserved.",
-                color = LightGreyText,
-                fontSize = 12.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-            )
         }
     }
 }
