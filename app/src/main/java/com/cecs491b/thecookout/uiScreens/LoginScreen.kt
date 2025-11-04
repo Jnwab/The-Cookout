@@ -39,7 +39,7 @@ import com.cecs491b.thecookout.ui.theme.CookoutOrange
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
 
 // Light grey text color used in the UI
-private val LightGreyText = Color(0xFF9AA0A6)
+val LightGreyText = Color(0xFF9AA0A6)
 
 @Composable
 private fun GoogleButton(

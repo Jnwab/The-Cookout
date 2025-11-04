@@ -1,43 +1,74 @@
 // server/index.js
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { config as loadEnv } from "dotenv";
+
+// ---------- Load .env (server/.env → ../.env → CWD/.env) ----------
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const envCandidates = [
+  path.resolve(__dirname, ".env"),       // <-- server/.env (your case)
+  path.resolve(__dirname, "..", ".env"), // repo root
+  path.resolve(process.cwd(), ".env"),   // where node was started
+];
+
+let loadedEnvPath = null;
+for (const p of envCandidates) {
+  if (fs.existsSync(p)) {
+    const result = loadEnv({ path: p, debug: true });
+    if (!result.error) {
+      loadedEnvPath = p;
+      console.log(`[BOOT] Loaded .env from: ${p}`);
+      console.log(
+        `[BOOT] Keys: ${Object.keys(result.parsed || {})
+          .map((k) => (k.includes("SECRET") || k.includes("KEY") ? `${k}=***` : k))
+          .join(", ")}`
+      );
+      break;
+    } else {
+      console.warn(`[BOOT] Failed loading .env at ${p}:`, result.error?.message);
+    }
+  }
+}
+if (!loadedEnvPath) console.warn("[BOOT] No .env file found; using process.env only.");
+
 import express from "express";
 import cors from "cors";
 import { createRequire } from "module";
 import { initializeApp, cert } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import crypto from "crypto";
-import dotenv from "dotenv";
 import { OAuth2Client } from "google-auth-library";
-
-dotenv.config();
 
 const require = createRequire(import.meta.url);
 
-// ---- Env + sanity checks ----
+// ---------- Env + config ----------
 const PORT = process.env.PORT || 3000;
 const APP_LINK = process.env.APP_LINK || "cookout://auth/callback";
-const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || `http://localhost:${PORT}`;
+const PUBLIC_BASE_URL = (process.env.PUBLIC_BASE_URL || `http://localhost:${PORT}`).replace(/\/$/, "");
 
 const TTK_KEY = process.env.TIKTOK_CLIENT_KEY || "";
 const TTK_SECRET = process.env.TIKTOK_CLIENT_SECRET || "";
 const REDIRECT_URI = `${PUBLIC_BASE_URL}/tiktokCallback`;
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
+
 if (!GOOGLE_CLIENT_ID) {
-  console.warn(
-    "[WARN] GOOGLE_CLIENT_ID is missing. Set it to the value of R.string.default_web_client_id."
-  );
+  console.warn("[WARN] GOOGLE_CLIENT_ID is missing. Set it to R.string.default_web_client_id.");
 }
 if (!TTK_KEY || !TTK_SECRET) {
   console.warn("[WARN] TikTok client key/secret not set; /tiktok* will fail until you add them.");
 }
 
-// ---- Use Firebase Auth emulator in dev (optional) ----
+// ---------- Firebase Auth emulator (optional) ----------
 if (process.env.USE_AUTH_EMULATOR === "1") {
   process.env.FIREBASE_AUTH_EMULATOR_HOST = "localhost:9100";
   console.log("Using Firebase Auth Emulator at localhost:9100");
 }
 
-// ---- Firebase Admin init (file or ENV fallback) ----
+// ---------- Firebase Admin init ----------
 let serviceCreds = null;
 try {
   serviceCreds = require("./serviceAccountKey.json");
@@ -52,14 +83,14 @@ try {
 }
 initializeApp({ credential: cert(serviceCreds) });
 
-// ---- App setup ----
+// ---------- Express app ----------
 const app = express();
 
-// (Optional) tighten CORS if you want:
 const allowList = (process.env.ALLOWED_ORIGINS || "")
   .split(",")
-  .map(s => s.trim())
+  .map((s) => s.trim())
   .filter(Boolean);
+
 app.use(
   cors(
     allowList.length
@@ -74,15 +105,32 @@ app.use(
 );
 
 app.use(express.json());
-app.use((req, res, next) => {
+app.use((_, res, next) => {
   res.setHeader("ngrok-skip-browser-warning", "true");
   next();
 });
 
-const pendingStates = new Set();
+// ---------- PKCE helpers ----------
+function b64url(buf) {
+  return Buffer.from(buf)
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+}
+function makeCodeVerifier() {
+  return b64url(crypto.randomBytes(32)); // 32–64 bytes is fine
+}
+function makeCodeChallenge(verifier) {
+  const sha = crypto.createHash("sha256").update(verifier).digest();
+  return b64url(sha);
+}
+
+// Store verifier per OAuth state
+const pendingStates = new Map();
 const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
-// ---- Helpful root + health ----
+// ---------- Root + health ----------
 app.get("/", (_req, res) => {
   res.send(`
     <h1>The Cookout Auth Server</h1>
@@ -96,10 +144,16 @@ app.get("/", (_req, res) => {
 });
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
-// ===================== TikTok =====================
+// ---------- TikTok (with PKCE) ----------
 app.get("/tiktokStart", (_req, res) => {
   const state = crypto.randomBytes(16).toString("hex");
-  pendingStates.add(state);
+
+  // PKCE
+  const verifier = makeCodeVerifier();
+  const challenge = makeCodeChallenge(verifier);
+
+  // remember verifier for this state
+  pendingStates.set(state, verifier);
 
   const u = new URL("https://www.tiktok.com/v2/auth/authorize/");
   u.searchParams.set("client_key", TTK_KEY);
@@ -107,6 +161,8 @@ app.get("/tiktokStart", (_req, res) => {
   u.searchParams.set("scope", "user.info.basic");
   u.searchParams.set("redirect_uri", REDIRECT_URI);
   u.searchParams.set("state", state);
+  u.searchParams.set("code_challenge", challenge);
+  u.searchParams.set("code_challenge_method", "S256");
 
   res.redirect(u.toString());
 });
@@ -114,25 +170,34 @@ app.get("/tiktokStart", (_req, res) => {
 app.get("/tiktokCallback", async (req, res) => {
   try {
     const code = req.query.code?.toString();
-    const state = req.query.state?.toString();
-    if (!code || !state || !pendingStates.has(state)) throw new Error("Bad or missing state/code");
+    const state = req.query.state?.toString();   // <-- fixed (no leading 'a')
+    const verifier = state ? pendingStates.get(state) : undefined;
+
+    if (!code || !state || !verifier) throw new Error("Bad or missing state/code");
     pendingStates.delete(state);
+
+    const body = new URLSearchParams({
+      client_key: TTK_KEY,
+      client_secret: TTK_SECRET,   // keep if app is confidential
+      code,
+      grant_type: "authorization_code",
+      redirect_uri: REDIRECT_URI,
+      code_verifier: verifier,     // PKCE
+    }).toString();
 
     const tokenResp = await fetch("https://open.tiktokapis.com/v2/oauth/token/", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        client_key: TTK_KEY,
-        client_secret: TTK_SECRET,
-        code,
-        grant_type: "authorization_code",
-        redirect_uri: REDIRECT_URI,
-      }).toString(),
+      body,
     });
-    const tokenJson = await tokenResp.json();
+
+    const rawTxt = await tokenResp.text();
+    let tokenJson; try { tokenJson = JSON.parse(rawTxt); } catch { tokenJson = {}; }
+    if (!tokenResp.ok) { console.error("Token exchange failed:", rawTxt); throw new Error("Token exchange failed"); }
+
     const accessToken = tokenJson?.data?.access_token || tokenJson?.access_token;
     const openIdFromToken = tokenJson?.data?.open_id || tokenJson?.open_id;
-    if (!tokenResp.ok || !accessToken) throw new Error("Token exchange failed");
+    if (!accessToken) throw new Error("No access_token returned");
 
     const profileResp = await fetch(
       "https://open.tiktokapis.com/v2/user/info/?fields=open_id,display_name,avatar_url",
@@ -145,9 +210,8 @@ app.get("/tiktokCallback", async (req, res) => {
     }
 
     const uid = `tiktok:${user.open_id}`;
-    try {
-      await getAuth().getUser(uid);
-    } catch {
+    try { await getAuth().getUser(uid); }
+    catch {
       await getAuth().createUser({
         uid,
         displayName: user.display_name ?? "TikTok User",
@@ -163,14 +227,12 @@ app.get("/tiktokCallback", async (req, res) => {
   }
 });
 
-// ===================== Google =====================
-// Debug log so you can see the hit
+// ---------- Google ----------
 app.post("/googleVerify", (req, _res, next) => {
   console.log("googleVerify hit", new Date().toISOString());
   next();
 });
 
-// Verifies Google ID token (audience = GOOGLE_CLIENT_ID) and returns Firebase custom token
 app.post("/googleVerify", async (req, res) => {
   try {
     const { idToken } = req.body || {};
@@ -206,8 +268,8 @@ app.post("/googleVerify", async (req, res) => {
   }
 });
 
-// ---- Start server ----
-app.listen(PORT, () => {
+// ---------- Start server (bind all interfaces) ----------
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Auth server on http://localhost:${PORT}`);
   console.log(`TikTok Redirect URI: ${REDIRECT_URI}`);
 });
