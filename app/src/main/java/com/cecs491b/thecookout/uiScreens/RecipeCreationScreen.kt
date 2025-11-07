@@ -3,6 +3,10 @@
 package com.cecs491b.thecookout.uiScreens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -10,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.*
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -36,7 +41,19 @@ fun RecipeCreationScreen() {
                     }
                 }
             )
-        }
+        },
+        bottomBar = {
+            BottomAppBar(
+                {
+                    Button(
+                        onClick = { },
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+                    ) {
+                        Text("Publish Recipe")
+                    }
+                }
+            )
+        },
     ) { padding ->
         NavHost(
             navController = navController,
@@ -64,17 +81,118 @@ private fun getTitleForRoute(route: String?): String {
 
 @Composable
 fun RecipeCreationMainScreen(navController: NavHostController) {
+    var title by rememberSaveable { mutableStateOf("") }
+    var description by rememberSaveable { mutableStateOf("") }
+    var preptime by rememberSaveable { mutableStateOf("") }
+    var cooktime by rememberSaveable { mutableStateOf("") }
+    var servings by rememberSaveable { mutableStateOf("") }
+    // make these two enumerable
+    var difficulty by rememberSaveable { mutableStateOf("") }
+    var category by rememberSaveable { mutableStateOf("") }
+    val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .padding(24.dp)
+            .verticalScroll(scrollState)
     ) {
         Text(
-            text = "Let's create your recipe!",
-            style = MaterialTheme.typography.headlineMedium
+            text = "Recipe Photo",
+            style = MaterialTheme.typography.headlineSmall
         )
+        Button(
+            onClick = { // photo picker window
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Add Photo")
+        }
+        Spacer(Modifier.height(5.dp))
+        Text(
+            text = "Recipe Title",
+            style = MaterialTheme.typography.headlineSmall
+        )
+        OutlinedTextField(
+            value = title,
+            onValueChange = { title = it },
+            label = { Text("e.g., Classic Carbonara") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(Modifier.height(5.dp))
+        Text(
+            text = "Description",
+            style = MaterialTheme.typography.headlineSmall
+        )
+        OutlinedTextField(
+            value = description,
+            onValueChange = { description = it },
+            label = { Text("Describe your recipe...") },
+            modifier = Modifier.fillMaxWidth().height(150.dp)
+        )
+
+        Spacer(Modifier.height(5.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier.padding(vertical = 5.dp).weight(1f)
+            ) {
+                Text(
+                    text = "Prep Time (mins)",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                OutlinedTextField(
+                    value = preptime,
+                    onValueChange = { preptime = it },
+                    label = { Text("15") },
+                    singleLine = true,
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = "Servings",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                OutlinedTextField(
+                    value = servings,
+                    onValueChange = { servings = it },
+                    label = { Text("4") },
+                    singleLine = true,
+                )
+            }
+
+            Spacer(Modifier.width(10.dp))
+            
+            Column(
+                modifier = Modifier.padding(vertical = 5.dp).weight(1f)
+            ) {
+                Text(
+                    text = "Cook Time (mins)",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                OutlinedTextField(
+                    value = cooktime,
+                    onValueChange = { cooktime = it },
+                    label = { Text("25") },
+                    singleLine = true,
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = "Difficulty",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                OutlinedTextField(
+                    value = difficulty,
+                    onValueChange = { difficulty = it },
+                    label = { Text("Hard") },
+                    singleLine = true,
+                )
+            }
+        }
+
+        
+
         Spacer(Modifier.height(24.dp))
         Button(
             onClick = { navController.navigate("ingredients") },
