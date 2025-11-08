@@ -22,6 +22,12 @@ import androidx.navigation.compose.*
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
 import androidx.compose.ui.tooling.preview.Preview
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import coil.compose.AsyncImage
+
 
 @Composable
 fun RecipeCreationScreen() {
@@ -46,7 +52,9 @@ fun RecipeCreationScreen() {
             BottomAppBar(
                 {
                     Button(
-                        onClick = { },
+                        onClick = {
+                            // TODO: send payload of data here into database (can make a function in viewmodel)
+                        },
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
                     ) {
                         Text("Publish Recipe")
@@ -62,7 +70,7 @@ fun RecipeCreationScreen() {
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            composable("main") { RecipeCreationMainScreen(navController) }
+            composable("main") { RecipeCreationMainScreen(navController, viewModel) }
             composable("ingredients") { AddIngredientsScreen(navController, viewModel) }
             composable("steps") { AddStepsScreen(navController, viewModel) }
         }
@@ -80,15 +88,15 @@ private fun getTitleForRoute(route: String?): String {
 
 
 @Composable
-fun RecipeCreationMainScreen(navController: NavHostController) {
-    var title by rememberSaveable { mutableStateOf("") }
-    var description by rememberSaveable { mutableStateOf("") }
-    var preptime by rememberSaveable { mutableStateOf("") }
-    var cooktime by rememberSaveable { mutableStateOf("") }
-    var servings by rememberSaveable { mutableStateOf("") }
-    // make these two enumerable
-    var difficulty by rememberSaveable { mutableStateOf("") }
-    var category by rememberSaveable { mutableStateOf("") }
+fun RecipeCreationMainScreen(navController: NavHostController, viewModel: RecipeCreationViewModel ) {
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        viewModel.photoUri = uri
+    }
+
+
     val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
@@ -100,12 +108,30 @@ fun RecipeCreationMainScreen(navController: NavHostController) {
             text = "Recipe Photo",
             style = MaterialTheme.typography.headlineSmall
         )
-        Button(
-            onClick = { // photo picker window
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Add Photo")
+        if (viewModel.photoUri != null) {
+            AsyncImage(
+                model = viewModel.photoUri,
+                contentDescription = "Selected recipe image",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            )
+            Spacer(Modifier.height(8.dp))
+            OutlinedButton(
+                onClick = { viewModel.photoUri = null },
+                modifier = Modifier.fillMaxWidth()
+            ) { Text("Remove Photo") }
+        } else {
+            Button(
+                onClick = {
+                    photoPickerLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Add Photo")
+            }
         }
         Spacer(Modifier.height(5.dp))
         Text(
@@ -113,8 +139,8 @@ fun RecipeCreationMainScreen(navController: NavHostController) {
             style = MaterialTheme.typography.headlineSmall
         )
         OutlinedTextField(
-            value = title,
-            onValueChange = { title = it },
+            value = viewModel.title,
+            onValueChange = { viewModel.title = it },
             label = { Text("e.g., Classic Carbonara") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
@@ -126,8 +152,8 @@ fun RecipeCreationMainScreen(navController: NavHostController) {
             style = MaterialTheme.typography.headlineSmall
         )
         OutlinedTextField(
-            value = description,
-            onValueChange = { description = it },
+            value = viewModel.description,
+            onValueChange = { viewModel.description = it },
             label = { Text("Describe your recipe...") },
             modifier = Modifier.fillMaxWidth().height(150.dp)
         )
@@ -144,8 +170,8 @@ fun RecipeCreationMainScreen(navController: NavHostController) {
                     style = MaterialTheme.typography.bodyMedium
                 )
                 OutlinedTextField(
-                    value = preptime,
-                    onValueChange = { preptime = it },
+                    value = viewModel.preptime,
+                    onValueChange = { viewModel.preptime = it },
                     label = { Text("15") },
                     singleLine = true,
                 )
@@ -155,8 +181,8 @@ fun RecipeCreationMainScreen(navController: NavHostController) {
                     style = MaterialTheme.typography.bodyMedium
                 )
                 OutlinedTextField(
-                    value = servings,
-                    onValueChange = { servings = it },
+                    value = viewModel.servings,
+                    onValueChange = { viewModel.servings = it },
                     label = { Text("4") },
                     singleLine = true,
                 )
@@ -172,8 +198,8 @@ fun RecipeCreationMainScreen(navController: NavHostController) {
                     style = MaterialTheme.typography.bodyMedium
                 )
                 OutlinedTextField(
-                    value = cooktime,
-                    onValueChange = { cooktime = it },
+                    value = viewModel.cooktime,
+                    onValueChange = { viewModel.cooktime = it },
                     label = { Text("25") },
                     singleLine = true,
                 )
@@ -183,8 +209,8 @@ fun RecipeCreationMainScreen(navController: NavHostController) {
                     style = MaterialTheme.typography.bodyMedium
                 )
                 OutlinedTextField(
-                    value = difficulty,
-                    onValueChange = { difficulty = it },
+                    value = viewModel.difficulty,
+                    onValueChange = { viewModel.difficulty = it },
                     label = { Text("Hard") },
                     singleLine = true,
                 )
@@ -194,13 +220,42 @@ fun RecipeCreationMainScreen(navController: NavHostController) {
         
 
         Spacer(Modifier.height(24.dp))
+
+        Text(text = "Ingredients", style = MaterialTheme.typography.titleSmall)
+        if (viewModel.ingredients.isEmpty()) {
+            Text("No ingredients yet", style = MaterialTheme.typography.bodySmall)
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                viewModel.ingredients.take(3).forEachIndexed { i, ing ->
+                    Text("${i + 1}. $ing", style = MaterialTheme.typography.bodySmall)
+                }
+                if (viewModel.ingredients.size > 3) {
+                    Text("…${viewModel.ingredients.size - 3} more", style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
         Button(
             onClick = { navController.navigate("ingredients") },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Add Ingredients")
         }
+
         Spacer(Modifier.height(16.dp))
+
+        Text(text = "Steps", style = MaterialTheme.typography.titleSmall)
+        if (viewModel.steps.isEmpty()) {
+            Text("No steps yet", style = MaterialTheme.typography.bodySmall)
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                viewModel.steps.take(3).forEachIndexed { i, ing ->
+                    Text("${i + 1}. $ing", style = MaterialTheme.typography.bodySmall)
+                }
+                if (viewModel.steps.size > 3) {
+                    Text("…${viewModel.steps.size - 3} more", style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
         Button(
             onClick = { navController.navigate("steps") },
             modifier = Modifier.fillMaxWidth()
