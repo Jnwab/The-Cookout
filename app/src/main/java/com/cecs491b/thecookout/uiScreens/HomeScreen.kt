@@ -265,3 +265,12 @@ private fun BottomNavBar() {
         NavigationBarItem(selected = false, onClick = {}, icon = { Text("👤") }, label = { Text("Profile") })
     }
 }
+@Preview(showBackground = true)
+@Composable
+private fun HomeScreenPreview() {
+    TheCookoutTheme(darkTheme = false, dynamicColor = false) {
+        HomeScreen(
+            onCreateRecipeClick = {}
+        )
+    }
+}

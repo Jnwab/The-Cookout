@@ -362,6 +362,8 @@ fun LoginScreen(
                     )
                 }
             }
+
+            Spacer(Modifier.height(150.dp))
         }
     }
 }
