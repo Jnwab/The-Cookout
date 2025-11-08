@@ -76,10 +76,10 @@ class LoginActivity : ComponentActivity() {
         }
 
         // testing bypass, change to false or delete for deployment
-        if (true) {
-            startActivity(Intent(this,HomeActivity::class.java))
-            finish()
-        }
+        //if (true) {
+        //    startActivity(Intent(this,HomeActivity::class.java))
+        //    finish()
+        //}
 
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) {
