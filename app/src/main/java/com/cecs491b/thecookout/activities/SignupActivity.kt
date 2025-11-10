@@ -1,126 +1,119 @@
 package com.cecs491b.thecookout.activities
 
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModelProvider
 import com.cecs491b.thecookout.R
-import com.cecs491b.thecookout.uiScreens.LoginScreen
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
+import com.cecs491b.thecookout.uiScreens.SignupScreen
+import com.cecs491b.thecookout.viewmodels.AuthState
+import com.cecs491b.thecookout.viewmodels.AuthViewModel
+import com.cecs491b.thecookout.viewmodels.NavigationEvent
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
-import com.google.firebase.storage.storage
-import com.cecs491b.thecookout.uiScreens.SignupScreen
-import com.cecs491b.thecookout.models.User
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 
+class SignupActivity : ComponentActivity() {
+    private lateinit var viewModel: AuthViewModel
+    private lateinit var googleClient: GoogleSignInClient
 
-class SignupActivity: ComponentActivity() {
-    private lateinit var auth: FirebaseAuth
-    private lateinit var database: FirebaseFirestore
+    private val googleSignInLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            try {
+                val account = task.getResult(ApiException::class.java)!!
+                val idToken = account.idToken
+                if (idToken.isNullOrBlank()) {
+                    Toast.makeText(this, "No Google ID token.", Toast.LENGTH_LONG).show()
+                    return@registerForActivityResult
+                }
+                viewModel.verifyGoogleToken(idToken)
+            } catch (e: ApiException) {
+                Toast.makeText(this, "Google sign-in failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
 
-    override fun onCreate(savedInstanceState: Bundle? ){
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        auth = Firebase.auth
-        database = Firebase.firestore
+
+        // Initialize ViewModel
+        viewModel = ViewModelProvider(
+            this,
+            AuthViewModelFactory(Firebase.auth, Firebase.firestore)
+        )[AuthViewModel::class.java]
+
+        // Setup Google Sign-In
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestEmail()
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .build()
+        googleClient = GoogleSignIn.getClient(this, gso)
 
         setContent {
             TheCookoutTheme {
-                Surface(modifier = Modifier.fillMaxSize()){
+                val uiState by viewModel.signupUiState.collectAsState()
+                val navigationEvent by viewModel.navigationEvent.collectAsState()
+
+                // Handle navigation events
+                LaunchedEffect(navigationEvent) {
+                    when (navigationEvent) {
+                        is NavigationEvent.NavigateToLogin -> {
+                            startActivity(Intent(this@SignupActivity, LoginActivity::class.java))
+                            finish()
+                            viewModel.clearNavigationEvent()
+                        }
+                        is NavigationEvent.NavigateToProfile -> {
+                            startActivity(Intent(this@SignupActivity, ProfileActivity::class.java))
+                            finish()
+                            viewModel.clearNavigationEvent()
+                        }
+                        else -> {}
+                    }
+                }
+
+                // Handle auth state changes
+                LaunchedEffect(uiState.authState) {
+                    when (val state = uiState.authState) {
+                        is AuthState.Error -> {
+                            Toast.makeText(this@SignupActivity, state.message, Toast.LENGTH_LONG).show()
+                            viewModel.clearAuthState()
+                        }
+                        is AuthState.Success -> {
+                            Toast.makeText(this@SignupActivity, "Account created successfully!", Toast.LENGTH_SHORT).show()
+                        }
+                        else -> {}
+                    }
+                }
+
+                Surface(modifier = Modifier.fillMaxSize()) {
                     SignupScreen(
-                        onSignupClick = {email, password, displayName ->
-                            handleSignup(email, password, displayName)
+                        isLoading = uiState.authState is AuthState.Loading,
+                        onSignupClick = { email, password, displayName ->
+                            viewModel.signupWithEmail(email, password, displayName)
                         },
                         onBackToLogin = {
-                            startActivity(Intent(this, LoginActivity::class.java))
-                            finish()
+                            viewModel.navigateToLogin()
                         },
-                        onGoogleSignInClick = { launchGoogleLink() }
+                        onGoogleSignInClick = {
+                            googleSignInLauncher.launch(googleClient.signInIntent)
+                        }
                     )
                 }
             }
         }
     }
-
-    private fun launchGoogleLink(){
-        // pass rn
-    }
-
-    private fun handleSignup(email: String, password: String, displayName: String) {
-        if (email.isBlank() || password.isBlank() || displayName.isBlank()) {
-            Toast.makeText(this, "Please fill out all fields", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        if (password.length < 10) {
-            Toast.makeText(this, "Password must be at least 10 characters", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    val firebaseUser = auth.currentUser
-                    if (firebaseUser != null) {
-                        val user = User(
-                            uid = firebaseUser.uid,
-                            email = email,
-                            displayName = displayName,
-                            phoneNumber = "",
-                            photoUrl = "",
-                            provider = "email",
-                            createdAt = System.currentTimeMillis(),
-                            updatedAt = System.currentTimeMillis()
-                        )
-
-                        saveUserToDatabase(user)
-                    }
-                } else {
-                    val errorMessage = when {
-                        task.exception?.message?.contains("email address is already in use") == true ->
-                            "This email is already registered. Please login instead."
-                        task.exception?.message?.contains("badly formatted") == true ->
-                            "Invalid email format"
-                        task.exception?.message?.contains("weak password") == true ->
-                            "Password is too weak"
-                        else -> "Signup failed: ${task.exception?.message}"
-                    }
-                    Toast.makeText(
-                        this,
-                        errorMessage,
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-    }
-
-    private fun saveUserToDatabase(user: User) {
-        database.collection("users").document(user.uid)
-            .set(user)
-            .addOnSuccessListener {
-                Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show()
-                finish()
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(
-                    this,
-                    "Failed to save profile: ${e.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-    }
-
 }

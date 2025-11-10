@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -18,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -48,8 +50,9 @@ import com.cecs491b.thecookout.models.User
 
 @Composable
 fun SignupScreen(
-    onSignupClick: (email: String, password: String, displayName: String) -> Unit = {_,_,_ -> },
-    onBackToLogin:() -> Unit = {},
+    isLoading: Boolean = false,
+    onSignupClick: (email: String, password: String, displayName: String) -> Unit = { _, _, _ -> },
+    onBackToLogin: () -> Unit = {},
     onGoogleSignInClick: () -> Unit = {}
 ) {
     var email by rememberSaveable { mutableStateOf("") }
@@ -57,16 +60,15 @@ fun SignupScreen(
     var displayName by rememberSaveable { mutableStateOf("") }
     var phoneNumber by rememberSaveable { mutableStateOf("") }
 
-
-
     Scaffold { padding ->
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    listOf(Color(0xFFFB923C), Color(0xFFFDBA74))
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        listOf(Color(0xFFFB923C), Color(0xFFFDBA74))
+                    )
                 )
-            )
         ) {
             Box(
                 modifier = Modifier
@@ -79,7 +81,7 @@ fun SignupScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-                }
+            }
 
             Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
                 Spacer(Modifier.height(215.dp))
@@ -126,6 +128,7 @@ fun SignupScreen(
                                 imeAction = ImeAction.Next
                             ),
                             singleLine = true,
+                            enabled = !isLoading,
                             modifier = Modifier.fillMaxWidth()
                         )
 
@@ -140,6 +143,7 @@ fun SignupScreen(
                                 imeAction = ImeAction.Next
                             ),
                             singleLine = true,
+                            enabled = !isLoading,
                             modifier = Modifier.fillMaxWidth()
                         )
 
@@ -155,18 +159,22 @@ fun SignupScreen(
                                 imeAction = ImeAction.Next
                             ),
                             singleLine = true,
+                            enabled = !isLoading,
                             modifier = Modifier.fillMaxWidth()
                         )
+
+                        Spacer(Modifier.height(5.dp))
 
                         OutlinedTextField(
                             value = phoneNumber,
                             onValueChange = { phoneNumber = it },
-                            label = { Text("Phone number") },
+                            label = { Text("Phone number (optional)") },
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Phone,
                                 imeAction = ImeAction.Done
                             ),
                             singleLine = true,
+                            enabled = !isLoading,
                             modifier = Modifier.fillMaxWidth()
                         )
 
@@ -174,6 +182,7 @@ fun SignupScreen(
 
                         Button(
                             onClick = { onSignupClick(email, password, displayName) },
+                            enabled = !isLoading,
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 contentColor = MaterialTheme.colorScheme.onPrimary
@@ -182,13 +191,21 @@ fun SignupScreen(
                                 .height(48.dp)
                                 .width(200.dp)
                         ) {
-                            Text("Create Account")
+                            if (isLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = Color.White
+                                )
+                            } else {
+                                Text("Create Account")
+                            }
                         }
 
                         Spacer(Modifier.height(20.dp))
 
                         TextButton(
                             onClick = onBackToLogin,
+                            enabled = !isLoading,
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text("Back to Login", color = CookoutOrange)
@@ -200,11 +217,18 @@ fun SignupScreen(
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 private fun SignupScreenPreview() {
     TheCookoutTheme(darkTheme = false, dynamicColor = false) {
         SignupScreen()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SignupScreenLoadingPreview() {
+    TheCookoutTheme(darkTheme = false, dynamicColor = false) {
+        SignupScreen(isLoading = true)
     }
 }
