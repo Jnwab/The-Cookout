@@ -170,7 +170,7 @@ app.get("/tiktokStart", (_req, res) => {
 app.get("/tiktokCallback", async (req, res) => {
   try {
     const code = req.query.code?.toString();
-    const state = req.query.state?.toString();   // <-- fixed (no leading 'a')
+    const state = req.query.state?.toString();
     const verifier = state ? pendingStates.get(state) : undefined;
 
     if (!code || !state || !verifier) throw new Error("Bad or missing state/code");
@@ -178,11 +178,11 @@ app.get("/tiktokCallback", async (req, res) => {
 
     const body = new URLSearchParams({
       client_key: TTK_KEY,
-      client_secret: TTK_SECRET,   // keep if app is confidential
+      client_secret: TTK_SECRET,
       code,
       grant_type: "authorization_code",
       redirect_uri: REDIRECT_URI,
-      code_verifier: verifier,     // PKCE
+      code_verifier: verifier,
     }).toString();
 
     const tokenResp = await fetch("https://open.tiktokapis.com/v2/oauth/token/", {

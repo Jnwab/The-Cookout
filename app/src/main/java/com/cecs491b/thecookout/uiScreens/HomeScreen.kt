@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.cecs491b.thecookout.ui.theme.CookoutOrange
+import com.cecs491b.thecookout.ui.theme.LightGreyText
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
 
 // ---------- DATA ----------
