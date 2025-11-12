@@ -1,12 +1,8 @@
 WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
-WARNING: sun.misc.Unsafe::objectFieldOffset has been called by akka.util.Unsafe (file:/Users/jushi/.cache/firebase/emulators/firebase-database-emulator-v4.11.2.jar)
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by akka.util.Unsafe (file:/C:/Users/afgpa/.cache/firebase/emulators/firebase-database-emulator-v4.11.2.jar)
 WARNING: Please consider reporting this to the maintainers of class akka.util.Unsafe
 WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
-13:10:14.649 [NamespaceSystem-akka.actor.default-dispatcher-4] INFO akka.event.slf4j.Slf4jLogger - Slf4jLogger started
-13:10:14.741 [main] INFO com.firebase.server.forge.App$ - Listening at 127.0.0.1:9000
-13:10:18.381 [NamespaceSystem-akka.actor.default-dispatcher-4] INFO com.firebase.core.namespace.NamespaceActor - thecookout-3b2eb-default-rtdb successfully activated FBKV (SurveyIdle(0)) wait: 69ms, init: 0ms
-13:10:18.411 [NamespaceSystem-blocking-namespace-operation-dispatcher-6] INFO com.firebase.core.namespace.StateManager - Namespace thecookout-3b2eb-default-rtdb status Active to Active
-13:14:41.878 [Thread-0] INFO com.firebase.server.forge.App$ - Attempting graceful shutdown.
-13:14:41.883 [NamespaceSystem-akka.actor.default-dispatcher-9] INFO com.firebase.core.namespace.Terminator$Terminator - 1 actors left to terminate: thecookout-3b2eb-default-rtdb
-13:14:41.888 [NamespaceSystem-akka.actor.default-dispatcher-11] INFO com.firebase.core.namespace.NamespaceActor - stopped namespace actor for thecookout-3b2eb-default-rtdb
-13:14:41.890 [Thread-0] INFO com.firebase.server.forge.App$ - Graceful shutdown complete.
+20:18:15.457 [NamespaceSystem-akka.actor.default-dispatcher-5] INFO akka.event.slf4j.Slf4jLogger - Slf4jLogger started
+20:18:15.658 [main] INFO com.firebase.server.forge.App$ - Listening at 127.0.0.1:9000
+20:18:20.940 [NamespaceSystem-akka.actor.default-dispatcher-5] INFO com.firebase.core.namespace.NamespaceActor - thecookout-3b2eb-default-rtdb successfully activated FBKV (SurveyIdle(0)) wait: 126ms, init: 0ms
+20:18:21.008 [NamespaceSystem-blocking-namespace-operation-dispatcher-7] INFO com.firebase.core.namespace.StateManager - Namespace thecookout-3b2eb-default-rtdb status Active to Active
