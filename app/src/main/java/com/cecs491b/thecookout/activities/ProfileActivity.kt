@@ -1,10 +1,15 @@
 package com.cecs491b.thecookout.activities
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
@@ -59,6 +64,11 @@ class ProfileActivity : ComponentActivity() {
             phoneNumber = phoneNumber,
             provider = provider,
             isLoading = isLoading,
+            onChangeAvatarClick = {
+                pickAvatar.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
+            },
             onEditProfileClick = {
                 startActivity(Intent(this@ProfileActivity, EditProfileActivity::class.java))
             },

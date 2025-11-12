@@ -2,6 +2,7 @@ package com.cecs491b.thecookout.uiScreens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -37,7 +38,7 @@ fun ProfileScreen(
     provider: String,
     isLoading: Boolean,
     onEditProfileClick: () -> Unit,
-    onSignOutClick: () -> Unit
+    onSignOutClick: () -> Unit,
 ) {
     val isPreview = LocalInspectionMode.current
 
@@ -214,12 +215,14 @@ private fun Avatar(isPreview: Boolean) {
             // runtime: load from network
             AsyncImage(
                 model = "https://marketplace.canva.com/8-1Kc/MAGoQJ8-1Kc/1/tl/canva-ginger-cat-with-paws-raised-in-air-MAGoQJ8-1Kc.jpg",
+                //model = avatarUrl,
                 contentDescription = "Profile Photo",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(110.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .clickable { /*onChangeAvatarClick()*/ }
             )
         }
 
@@ -228,7 +231,8 @@ private fun Avatar(isPreview: Boolean) {
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .offset(x = (-6).dp, y = (-6).dp)
-                .size(30.dp),
+                .size(30.dp)
+                .clickable { /*onChangeAvatarClick()*/ },
             shape = CircleShape,
             color = CookoutOrange,
             shadowElevation = 2.dp
