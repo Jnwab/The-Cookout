@@ -108,6 +108,7 @@ fun LoginScreen(
     onNavigateToForgot: () -> Unit = {},
     onNavigateToSignup: () -> Unit = {},
     onGoogleSignInClick: () -> Unit = {},
+    onNavigateToHome: () -> Unit = {},
 ) {
     val ctx = LocalContext.current
 

@@ -1,15 +1,10 @@
-package com.cecs491b.thecookout.uiScreens
-
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.ViewModel
+package com.cecs491b.thecookout.viewmodels
 
 import android.net.Uri
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.lifecycle.ViewModel
 
 class RecipeCreationViewModel : ViewModel() {
     val ingredients: SnapshotStateList<String> = mutableStateListOf()

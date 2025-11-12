@@ -22,7 +22,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 
 sealed class AuthState { data object Idle:AuthState(); data object Loading:AuthState(); data object Success:AuthState(); data class Error(val message:String):AuthState() }
-sealed class NavigationEvent { data object NavigateToProfile:NavigationEvent(); data object NavigateToLogin:NavigationEvent(); data object NavigateToSignup:NavigationEvent(); data object NavigateToForgotPassword:NavigationEvent(); data object NavigateToPhoneAuth:NavigationEvent() }
+sealed class NavigationEvent { data object NavigateToProfile:NavigationEvent(); data object NavigateToHome:NavigationEvent(); data object NavigateToSignup:NavigationEvent(); data object NavigateToForgotPassword:NavigationEvent(); data object NavigateToPhoneAuth:NavigationEvent(); data object NavigateToLogin:NavigationEvent(); }
 
 data class LoginUiState(val email:String="", val password:String="", val rememberMe:Boolean=false, val passwordVisible:Boolean=false, val authState:AuthState=AuthState.Idle)
 data class SignupUiState(val email:String="", val password:String="", val displayName:String="", val phoneNumber:String="", val authState:AuthState=AuthState.Idle)
@@ -129,7 +129,7 @@ class AuthViewModel @Inject constructor(
             if (doc.exists()) {
                 updateUserLastLogin(uid)
                 _loginUiState.value = _loginUiState.value.copy(authState = AuthState.Success)
-                _navigationEvent.value = NavigationEvent.NavigateToProfile
+                _navigationEvent.value = NavigationEvent.NavigateToHome
             } else {
                 auth.currentUser?.let { createUserProfile(it) } ?: run {
                     _loginUiState.value = _loginUiState.value.copy(authState = AuthState.Error("User not found"))
@@ -149,7 +149,7 @@ class AuthViewModel @Inject constructor(
             )
             firestore.collection("users").document(u.uid).set(user).await()
             _loginUiState.value = _loginUiState.value.copy(authState = AuthState.Success)
-            _navigationEvent.value = NavigationEvent.NavigateToProfile
+            _navigationEvent.value = NavigationEvent.NavigateToHome
         } catch (e: Exception) {
             _loginUiState.value = _loginUiState.value.copy(authState = AuthState.Error("Failed to create profile: ${e.message}"))
         }
@@ -159,7 +159,7 @@ class AuthViewModel @Inject constructor(
         try {
             firestore.collection("users").document(user.uid).set(user).await()
             _signupUiState.value = _signupUiState.value.copy(authState = AuthState.Success)
-            _navigationEvent.value = NavigationEvent.NavigateToLogin
+            _navigationEvent.value = NavigationEvent.NavigateToHome
         } catch (e: Exception) {
             _signupUiState.value = _signupUiState.value.copy(authState = AuthState.Error("Failed to save profile: ${e.message}"))
         }
@@ -183,7 +183,9 @@ class AuthViewModel @Inject constructor(
 
     fun navigateToForgotPassword(){ _navigationEvent.value = NavigationEvent.NavigateToForgotPassword }
     fun navigateToSignup(){ _navigationEvent.value = NavigationEvent.NavigateToSignup }
+    fun navigateToHome(){ _navigationEvent.value = NavigationEvent.NavigateToHome }
     fun navigateToLogin(){ _navigationEvent.value = NavigationEvent.NavigateToLogin }
+
     fun clearNavigationEvent(){ _navigationEvent.value = null }
     fun clearAuthState(){ _loginUiState.value = _loginUiState.value.copy(authState = AuthState.Idle); _signupUiState.value = _signupUiState.value.copy(authState = AuthState.Idle) }
 }

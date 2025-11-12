@@ -16,9 +16,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cecs491b.thecookout.support.openSupportEmail
+import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
 import com.cecs491b.thecookout.viewmodels.ForgotPasswordViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -117,5 +119,13 @@ fun ForgotPasswordScreen(
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) { Text("Need help? Contact Support") }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ForgotPasswordPreview() {
+    TheCookoutTheme(darkTheme = false, dynamicColor = false) {
+        ForgotPasswordScreen()
     }
 }

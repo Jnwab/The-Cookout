@@ -27,6 +27,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import coil.compose.AsyncImage
+import com.cecs491b.thecookout.viewmodels.RecipeCreationViewModel
 
 
 @Composable
@@ -88,7 +89,7 @@ private fun getTitleForRoute(route: String?): String {
 
 
 @Composable
-fun RecipeCreationMainScreen(navController: NavHostController, viewModel: RecipeCreationViewModel ) {
+fun RecipeCreationMainScreen(navController: NavHostController, viewModel: RecipeCreationViewModel) {
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()

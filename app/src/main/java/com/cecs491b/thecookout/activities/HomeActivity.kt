@@ -21,7 +21,9 @@ class HomeActivity : ComponentActivity() {
                     HomeScreen(
                         onCreateRecipeClick = {
                             startActivity(Intent(this, RecipeCreationActivity::class.java))
-                            finish()
+                        },
+                        onProfileClick = {
+                            startActivity(Intent(this, ProfileActivity::class.java))
                         }
                     )
                 }

@@ -88,6 +88,10 @@ class LoginActivity : ComponentActivity() {
                             startActivity(Intent(this@LoginActivity, PhoneAuthActivity::class.java))
                             vm.clearNavigationEvent()
                         }
+                        is NavigationEvent.NavigateToHome -> {
+                            startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
+                            vm.clearNavigationEvent()
+                        }
                         else -> Unit
                     }
                 }
@@ -112,6 +116,7 @@ class LoginActivity : ComponentActivity() {
                         onLoginClick = { email, password -> vm.loginWithEmail(email, password) },
                         onNavigateToForgot = { vm.navigateToForgotPassword() },
                         onNavigateToSignup = { vm.navigateToSignup() },
+                        onNavigateToHome = { vm.navigateToHome() },
                         onGoogleSignInClick = { startGoogleSignIn() }
                     )
                 }

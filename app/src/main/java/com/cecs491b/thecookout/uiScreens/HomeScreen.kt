@@ -91,7 +91,8 @@ fun HomeScreen(
     onAddRecipe: () -> Unit = {},
     onOpenRecipe: (Recipe) -> Unit = {},
     onTabChange: (String) -> Unit = {},
-    onCreateRecipeClick: () -> Unit
+    onCreateRecipeClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {}
 ) {
     var query by remember { mutableStateOf("") }
     var selected by remember { mutableStateOf("All") }
@@ -105,14 +106,14 @@ fun HomeScreen(
 
     Scaffold(
         containerColor = Color.White,
-        bottomBar = { BottomNavBar() },
+        bottomBar = { BottomNavBar(onProfileClick) },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = onAddRecipe,
+                onClick = onCreateRecipeClick,
                 containerColor = CookoutOrange,
                 contentColor = Color.White,
                 shape = CircleShape
-            ) { Icon(Icons.Outlined.Add, contentDescription = "Add") }
+            ) { Icon(Icons.Outlined.Add, contentDescription = "Create Recipe") }
         },
         floatingActionButtonPosition = FabPosition.Center
     ) { pad ->
@@ -260,13 +261,13 @@ private fun RecipeCard(r: Recipe, onClick: () -> Unit) {
 }
 
 @Composable
-private fun BottomNavBar() {
+private fun BottomNavBar(onProfileClick: () -> Unit) {
     NavigationBar(containerColor = Color.White) {
         NavigationBarItem(selected = true,  onClick = {}, icon = { Text("🏠") }, label = { Text("Home") })
         NavigationBarItem(selected = false, onClick = {}, icon = { Text("💗") }, label = { Text("Saved") })
         Spacer(Modifier.weight(1f, fill = true)) // space for center FAB
         NavigationBarItem(selected = false, onClick = {}, icon = { Text("🔔") }, label = { Text("Alerts") })
-        NavigationBarItem(selected = false, onClick = {}, icon = { Text("👤") }, label = { Text("Profile") })
+        NavigationBarItem(selected = false, onClick = { onProfileClick() }, icon = { Text("👤") }, label = { Text("Profile") })
     }
 }
 
