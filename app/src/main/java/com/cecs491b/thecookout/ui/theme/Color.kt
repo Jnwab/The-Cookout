@@ -12,3 +12,5 @@ val Pink40 = Color(0xFF7D5260)
 
 val CookoutOrange = Color(0xFFFF8B33)
 val DarkerOrange = Color(0xFFCF5B03)
+
+val LightGreyText = Color(0xFF9AA0A6)

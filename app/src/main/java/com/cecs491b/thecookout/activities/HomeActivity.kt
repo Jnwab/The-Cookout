@@ -1,14 +1,31 @@
 package com.cecs491b.thecookout.activities
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.MaterialTheme
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
+import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
 import com.cecs491b.thecookout.uiScreens.HomeScreen
 
 class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { MaterialTheme { HomeScreen() } }
+        enableEdgeToEdge()
+        setContent {
+            TheCookoutTheme {
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    HomeScreen(
+                        onCreateRecipeClick = {
+                            startActivity(Intent(this, RecipeCreationActivity::class.java))
+                            finish()
+                        }
+                    )
+                }
+            }
+        }
     }
 }

@@ -24,11 +24,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.cecs491b.thecookout.ui.theme.CookoutOrange
+import com.cecs491b.thecookout.ui.theme.LightGreyText
+import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
 
 // ---------- DATA ----------
 data class Recipe(
@@ -87,7 +90,8 @@ private val demoRecipes = listOf(
 fun HomeScreen(
     onAddRecipe: () -> Unit = {},
     onOpenRecipe: (Recipe) -> Unit = {},
-    onTabChange: (String) -> Unit = {}
+    onTabChange: (String) -> Unit = {},
+    onCreateRecipeClick: () -> Unit
 ) {
     var query by remember { mutableStateOf("") }
     var selected by remember { mutableStateOf("All") }
@@ -263,5 +267,15 @@ private fun BottomNavBar() {
         Spacer(Modifier.weight(1f, fill = true)) // space for center FAB
         NavigationBarItem(selected = false, onClick = {}, icon = { Text("🔔") }, label = { Text("Alerts") })
         NavigationBarItem(selected = false, onClick = {}, icon = { Text("👤") }, label = { Text("Profile") })
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun HomeScreenPreview() {
+    TheCookoutTheme(darkTheme = false, dynamicColor = false) {
+        HomeScreen(
+            onCreateRecipeClick = {}
+        )
     }
 }

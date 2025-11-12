@@ -1,6 +1,5 @@
 package com.cecs491b.thecookout.uiScreens
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.BorderStroke
@@ -36,10 +35,8 @@ import androidx.compose.ui.unit.sp
 import com.cecs491b.thecookout.R
 import com.cecs491b.thecookout.support.openSupportEmail
 import com.cecs491b.thecookout.ui.theme.CookoutOrange
+import com.cecs491b.thecookout.ui.theme.LightGreyText
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
-
-// Light grey text color used in the UI
-val LightGreyText = Color(0xFF9AA0A6)
 
 @Composable
 private fun GoogleButton(
@@ -79,15 +76,13 @@ private fun GoogleButton(
 private fun TikTokSignInButton(
     modifier: Modifier = Modifier,
     text: String = "Continue with TikTok",
-    startUrl: String = "https://lakita-frothiest-meanderingly.ngrok-free.dev/tiktokStart"
+    startUrl: String = "https://lakita-frothiest-meanderingly.ngrok-free.dev/tiktokStart",
+    enabled: Boolean = true
 ) {
     val context = LocalContext.current
     Button(
-        onClick = {
-            context.startActivity(
-                Intent(Intent.ACTION_VIEW, Uri.parse(startUrl))
-            )
-        },
+        onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(startUrl))) },
+        enabled = enabled,
         shape = RoundedCornerShape(20.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF000000),
@@ -102,20 +97,20 @@ private fun TikTokSignInButton(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text)
-        }
+        ) { Text(text) }
     }
 }
 
 @Composable
 fun LoginScreen(
+    isLoading: Boolean = false,
     onLoginClick: (email: String, password: String) -> Unit = { _, _ -> },
-    onForgotPasswordClick: () -> Unit = {},
+    onNavigateToForgot: () -> Unit = {},
+    onNavigateToSignup: () -> Unit = {},
     onGoogleSignInClick: () -> Unit = {},
-    onPhoneAuthClick: () -> Unit = {},
-    onSignupClick: () -> Unit = {}
 ) {
+    val ctx = LocalContext.current
+
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var rememberMe by rememberSaveable { mutableStateOf(false) }
@@ -135,7 +130,7 @@ fun LoginScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            // Header with image + title/subtitle
+            // Header image + overlay + title
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -147,7 +142,6 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-                // Soft orange fade into background
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -164,7 +158,6 @@ fun LoginScreen(
                             )
                         )
                 )
-
                 Column(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
@@ -229,6 +222,7 @@ fun LoginScreen(
                             imeAction = ImeAction.Next
                         ),
                         singleLine = true,
+                        enabled = !isLoading,
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
@@ -242,10 +236,11 @@ fun LoginScreen(
                         label = { Text("Password") },
                         placeholder = { Text("Enter your password", color = LightGreyText) },
                         singleLine = true,
+                        enabled = !isLoading,
                         visualTransformation = if (pwVisible) VisualTransformation.None
                         else PasswordVisualTransformation(),
                         trailingIcon = {
-                            IconButton(onClick = { pwVisible = !pwVisible }) {
+                            IconButton(onClick = { pwVisible = !pwVisible }, enabled = !isLoading) {
                                 Icon(
                                     imageVector = if (pwVisible) Icons.Filled.VisibilityOff
                                     else Icons.Filled.Visibility,
@@ -263,31 +258,34 @@ fun LoginScreen(
 
                     Spacer(Modifier.height(8.dp))
 
-                    // Remember me + Forgot password row
+                    // Remember me + Forgot password
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Checkbox(checked = rememberMe, onCheckedChange = { rememberMe = it })
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(
+                                checked = rememberMe,
+                                onCheckedChange = { rememberMe = it },
+                                enabled = !isLoading
+                            )
                             Text("Remember me", fontSize = 14.sp)
                         }
                         Text(
                             "Forgot password?",
                             color = CookoutOrange,
                             fontSize = 14.sp,
-                            modifier = Modifier.clickable { onForgotPasswordClick() }
+                            modifier = Modifier.clickable(enabled = !isLoading) { onNavigateToForgot() }
                         )
                     }
 
                     Spacer(Modifier.height(12.dp))
 
-                    // Primary Sign In button
+                    // Primary Sign In
                     Button(
                         onClick = { onLoginClick(email, password) },
+                        enabled = !isLoading,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp),
@@ -297,10 +295,14 @@ fun LoginScreen(
                             contentColor = Color.White
                         )
                     ) {
-                        Text("Sign In")
+                        if (isLoading) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
+                        } else {
+                            Text("Sign In")
+                        }
                     }
 
-                    // OR divider
+                    // Divider
                     Spacer(Modifier.height(12.dp))
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -312,19 +314,27 @@ fun LoginScreen(
                     }
                     Spacer(Modifier.height(12.dp))
 
-                    // Google button
-                    GoogleButton(onClick = onGoogleSignInClick, modifier = Modifier.fillMaxWidth())
+                    // Google
+                    GoogleButton(
+                        onClick = onGoogleSignInClick,
+                        enabled = !isLoading,
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
                     Spacer(Modifier.height(12.dp))
 
-                    // TikTok button
-                    TikTokSignInButton(modifier = Modifier.fillMaxWidth())
+                    // TikTok (kept self-contained; opens browser to your start URL)
+                    TikTokSignInButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !isLoading
+                    )
 
                     Spacer(Modifier.height(12.dp))
 
-                    // Phone auth / Sign up button
+                    // Sign up
                     OutlinedButton(
-                        onClick = onSignupClick,
+                        onClick = onNavigateToSignup,
+                        enabled = !isLoading,
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         border = BorderStroke(1.dp, Color(0xFFDADCE0))
@@ -336,7 +346,6 @@ fun LoginScreen(
                     Spacer(Modifier.height(12.dp))
 
                     // Contact Support
-                    val ctx = LocalContext.current
                     TextButton(
                         onClick = {
                             openSupportEmail(
@@ -345,14 +354,12 @@ fun LoginScreen(
                                 bodyExtra = "Describe what happened, steps to reproduce, and any screenshots."
                             )
                         },
+                        enabled = !isLoading,
                         modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Contact Support", color = CookoutOrange)
-                    }
+                    ) { Text("Contact Support", color = CookoutOrange) }
 
                     Spacer(Modifier.height(8.dp))
 
-                    // Footer
                     Text(
                         "© 2025 The Cookout. All rights reserved.",
                         color = LightGreyText,
@@ -362,6 +369,8 @@ fun LoginScreen(
                     )
                 }
             }
+
+            Spacer(Modifier.height(150.dp))
         }
     }
 }
