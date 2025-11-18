@@ -45,7 +45,7 @@ data class Recipe(
     val category: String
 )
 
-private val categories = listOf("All", "Breakfast", "Lunch", "Dinner", "Desserts")
+public val categories = listOf("All", "Breakfast", "Lunch", "Dinner", "Desserts")
 
 // 16 demo items with DIRECT image URLs so Coil can load them.
 private val demoRecipes = listOf(
@@ -92,7 +92,9 @@ fun HomeScreen(
     onOpenRecipe: (Recipe) -> Unit = {},
     onTabChange: (String) -> Unit = {},
     onCreateRecipeClick: () -> Unit = {},
-    onProfileClick: () -> Unit = {}
+    onProfileClick: () -> Unit = {},
+    onSavedClick: () -> Unit = {},
+    onHomeClick: () -> Unit = {}
 ) {
     var query by remember { mutableStateOf("") }
     var selected by remember { mutableStateOf("All") }
@@ -106,7 +108,7 @@ fun HomeScreen(
 
     Scaffold(
         containerColor = Color.White,
-        bottomBar = { BottomNavBar(onProfileClick) },
+        bottomBar = { BottomNavBar("home", onProfileClick, onSavedClick, onHomeClick) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onCreateRecipeClick,
@@ -153,7 +155,7 @@ fun HomeScreen(
 
 // ---------- UI Parts ----------
 @Composable
-private fun TopHeader() {
+public fun TopHeader() {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -168,7 +170,7 @@ private fun TopHeader() {
 }
 
 @Composable
-private fun SearchField(value: String, onChange: (String) -> Unit) {
+public fun SearchField(value: String, onChange: (String) -> Unit) {
     OutlinedTextField(
         value = value,
         onValueChange = onChange,
@@ -180,7 +182,7 @@ private fun SearchField(value: String, onChange: (String) -> Unit) {
 }
 
 @Composable
-private fun CategoryChipsScrollable(labels: List<String>, selected: String, onSelect: (String) -> Unit) {
+public fun CategoryChipsScrollable(labels: List<String>, selected: String, onSelect: (String) -> Unit) {
     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         items(labels.size) { idx ->
             val label = labels[idx]
@@ -199,7 +201,7 @@ private fun CategoryChipsScrollable(labels: List<String>, selected: String, onSe
 }
 
 @Composable
-private fun RecipeCard(r: Recipe, onClick: () -> Unit) {
+public fun RecipeCard(r: Recipe, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -261,13 +263,18 @@ private fun RecipeCard(r: Recipe, onClick: () -> Unit) {
 }
 
 @Composable
-private fun BottomNavBar(onProfileClick: () -> Unit) {
+public fun BottomNavBar(
+    current: String,
+    onProfileClick: () -> Unit,
+    onSavedClick: () -> Unit,
+    onHomeClick: () -> Unit
+) {
     NavigationBar(containerColor = Color.White) {
-        NavigationBarItem(selected = true,  onClick = {}, icon = { Text("🏠") }, label = { Text("Home") })
-        NavigationBarItem(selected = false, onClick = {}, icon = { Text("💗") }, label = { Text("Saved") })
+        NavigationBarItem(selected = current == "home",  onClick = { onHomeClick() }, icon = { Text("🏠") }, label = { Text("Home") })
+        NavigationBarItem(selected = current == "saved", onClick = { onSavedClick() }, icon = { Text("💗") }, label = { Text("Saved") })
         Spacer(Modifier.weight(1f, fill = true)) // space for center FAB
-        NavigationBarItem(selected = false, onClick = {}, icon = { Text("🔔") }, label = { Text("Alerts") })
-        NavigationBarItem(selected = false, onClick = { onProfileClick() }, icon = { Text("👤") }, label = { Text("Profile") })
+        NavigationBarItem(selected = false, onClick = { /* onNotifClick() */ }, icon = { Text("🔔") }, label = { Text("Alerts") })
+        NavigationBarItem(selected = current == "profile", onClick = { onProfileClick() }, icon = { Text("👤") }, label = { Text("Profile") })
     }
 }
 

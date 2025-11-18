@@ -9,25 +9,26 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
-import com.cecs491b.thecookout.uiScreens.HomeScreen
+import com.cecs491b.thecookout.uiScreens.SavedPostsScreen
 
-class HomeActivity : ComponentActivity() {
+class SavedPostsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             TheCookoutTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    HomeScreen(
+                    SavedPostsScreen(
                         onCreateRecipeClick = {
                             startActivity(Intent(this, RecipeCreationActivity::class.java))
                         },
                         onProfileClick = {
                             startActivity(Intent(this, ProfileActivity::class.java))
                         },
-                        onSavedClick = {
-                            startActivity(Intent(this, SavedPostsActivity::class.java))
-                        }
+                        onHomeClick = {
+                            startActivity(Intent(this, HomeActivity::class.java))
+                        },
+                        onSavedClick = {}
                     )
                 }
             }

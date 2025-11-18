@@ -19,6 +19,10 @@ import com.cecs491b.thecookout.uiScreens.ProfileScreen
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import com.cecs491b.thecookout.uiScreens.BottomNavBar
 
 class ProfileActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -33,7 +37,24 @@ class ProfileActivity : ComponentActivity() {
         setContent {
             TheCookoutTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    ProfileContent()
+                    Scaffold(
+                        bottomBar = {
+                            BottomNavBar(
+                                current = "profile",
+                                onHomeClick = {
+                                    startActivity(Intent(this, HomeActivity::class.java))
+                                },
+                                onSavedClick = {
+                                    startActivity(Intent(this, SavedPostsActivity::class.java))
+                                },
+                                onProfileClick = {}
+                            )
+                        }
+                    ) { pad ->
+                        Box(Modifier.padding(pad)) {
+                            ProfileContent()
+                        }
+                    }
                 }
             }
         }
@@ -64,11 +85,11 @@ class ProfileActivity : ComponentActivity() {
             phoneNumber = phoneNumber,
             provider = provider,
             isLoading = isLoading,
-            onChangeAvatarClick = {
-                pickAvatar.launch(
-                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                )
-            },
+            //onChangeAvatarClick = {
+            //    pickAvatar.launch(
+            //        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            //    )
+            //},*/
             onEditProfileClick = {
                 startActivity(Intent(this@ProfileActivity, EditProfileActivity::class.java))
             },
