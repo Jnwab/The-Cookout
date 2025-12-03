@@ -1,5 +1,6 @@
 package com.cecs491b.thecookout.uiScreens
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,6 +18,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +39,14 @@ import coil.request.ImageRequest
 import com.cecs491b.thecookout.ui.theme.CookoutOrange
 import com.cecs491b.thecookout.ui.theme.LightGreyText
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
+import com.cecs491b.thecookout.viewmodels.SavedRecipesViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.draw.scale
 
 // ---------- DATA ----------
 data class Recipe(
@@ -52,7 +62,7 @@ data class Recipe(
 
 val categories = listOf("All", "Breakfast", "Lunch", "Dinner", "Desserts")
 
-private val demoRecipes = listOf(
+internal val demoRecipes = listOf(
     Recipe(
         "1", "Classic Beef Burger", "Sarah Kitchen", 124, 1, 15,
         "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200&q=80&auto=format&fit=crop",
@@ -138,11 +148,13 @@ private val demoRecipes = listOf(
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
+    viewModel: SavedRecipesViewModel = viewModel(),
     onOpenRecipe: (Recipe) -> Unit = {},
     onTabChange: (String) -> Unit = {}
 ) {
     var query by remember { mutableStateOf("") }
     var selected by remember { mutableStateOf("All") }
+    val savedIds  by viewModel.savedIds.collectAsState()
 
     val items = remember(query, selected) {
         demoRecipes.filter {
@@ -178,7 +190,11 @@ fun HomeScreen(
             horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            items(items) { r -> RecipeCard(r) { onOpenRecipe(r) } }
+            items(items) { r -> RecipeCard(
+                r = r,
+                isSaved = r.id in savedIds,
+                onSaveClick = {viewModel.toggleSave(r.id)},
+                onClick = { onOpenRecipe(r) }) }
         }
 
         Spacer(Modifier.height(56.dp))
@@ -238,7 +254,19 @@ fun CategoryChipsScrollable(labels: List<String>, selected: String, onSelect: (S
 }
 
 @Composable
-fun RecipeCard(r: Recipe, onClick: () -> Unit) {
+fun RecipeCard(r: Recipe, isSaved: Boolean, onSaveClick: () -> Unit, onClick: () -> Unit) {
+    var isAnimating by remember { mutableStateOf(false) }
+
+    val scale by animateFloatAsState(
+        targetValue = if (isAnimating) 1.3f else 1f,
+        animationSpec = spring(
+            dampingRatio = 0.4f,
+            stiffness = 400f
+        ),
+        finishedListener = {isAnimating = false},
+        label = "heartScale"
+    )
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -249,18 +277,39 @@ fun RecipeCard(r: Recipe, onClick: () -> Unit) {
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(r.imageUrl)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = r.title,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(140.dp)
-                    .background(Color(0xFFF0F0F0))
-            )
+            Box{
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(r.imageUrl)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = r.title,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(140.dp)
+                        .background(Color(0xFFF0F0F0))
+                )
+
+                IconButton(
+                    onClick = {
+                        onSaveClick()
+                        isAnimating = true
+                    },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(4.dp)
+                ){
+                    Icon(
+                        imageVector = if (isSaved) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                        contentDescription = if (isSaved) "Unsave" else "Save",
+                        tint = if (isSaved) CookoutOrange else Color.White,
+                        modifier = Modifier
+                            .scale(scale)
+                            .size(24.dp)
+                    )
+                }
+            }
             Column(Modifier.padding(12.dp)) {
                 Text(
                     r.title,
