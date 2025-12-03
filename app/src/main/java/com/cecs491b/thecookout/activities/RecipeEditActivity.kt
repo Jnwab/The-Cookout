@@ -1,6 +1,5 @@
 package com.cecs491b.thecookout.activities
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -11,14 +10,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.cecs491b.thecookout.models.Recipe
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
-import com.cecs491b.thecookout.uiScreens.RecipeDetailScreen
-import com.google.firebase.auth.FirebaseAuth
+import com.cecs491b.thecookout.uiScreens.RecipeEditScreen
 import com.google.firebase.firestore.FirebaseFirestore
 
-class RecipeDetailActivity : ComponentActivity() {
+class RecipeEditActivity : ComponentActivity() {
 
     private val db = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,9 +33,7 @@ class RecipeDetailActivity : ComponentActivity() {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     var recipe by remember { mutableStateOf<Recipe?>(null) }
                     var isLoading by remember { mutableStateOf(true) }
-
-                    val currentUserId = auth.currentUser?.uid
-                    val isOwner = recipe?.authorId == currentUserId
+                    var isSaving by remember { mutableStateOf(false) }
 
                     LaunchedEffect(recipeId) {
                         loadRecipe(recipeId) { loadedRecipe ->
@@ -47,18 +42,17 @@ class RecipeDetailActivity : ComponentActivity() {
                         }
                     }
 
-                    RecipeDetailScreen(
+                    RecipeEditScreen(
                         recipe = recipe,
                         isLoading = isLoading,
-                        isOwner = isOwner,
+                        isSaving = isSaving,
                         onBackClick = { finish() },
-                        onEditClick = {
-                            val intent = Intent(this@RecipeDetailActivity, RecipeEditActivity::class.java)
-                            intent.putExtra("recipeId", recipeId)
-                            startActivity(intent)
-                        },
-                        onDeleteClick = {
-                            recipe?.let { deleteRecipe(it.id) }
+                        onSaveClick = { updatedRecipe ->
+                            isSaving = true
+                            saveRecipe(updatedRecipe) {
+                                isSaving = false
+                                finish()
+                            }
                         }
                     )
                 }
@@ -79,15 +73,16 @@ class RecipeDetailActivity : ComponentActivity() {
             }
     }
 
-    private fun deleteRecipe(recipeId: String) {
-        db.collection("recipes").document(recipeId)
-            .delete()
+    private fun saveRecipe(recipe: Recipe, onComplete: () -> Unit) {
+        db.collection("recipes").document(recipe.id)
+            .set(recipe)
             .addOnSuccessListener {
-                Toast.makeText(this, "Recipe deleted", Toast.LENGTH_SHORT).show()
-                finish()
+                Toast.makeText(this, "Recipe updated!", Toast.LENGTH_SHORT).show()
+                onComplete()
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Failed to delete recipe", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Failed to save", Toast.LENGTH_SHORT).show()
+                onComplete()
             }
     }
 }
