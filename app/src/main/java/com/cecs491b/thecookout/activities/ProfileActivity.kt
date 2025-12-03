@@ -134,6 +134,9 @@ class ProfileActivity : ComponentActivity() {
             },
             onShareClick = {
                 activity.shareProfile(displayName, myRecipes.size)
+            },
+            onSendTestFollowRequest = {
+                followersVm.sendFollowRequest("testUserB")
             }
         )
     }

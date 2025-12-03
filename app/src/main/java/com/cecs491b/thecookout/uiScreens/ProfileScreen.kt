@@ -49,7 +49,8 @@ fun ProfileScreen(
     onSignOutClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onRecipeClick: (Recipe) -> Unit,
-    onShareClick: () -> Unit
+    onShareClick: () -> Unit,
+    onSendTestFollowRequest: () -> Unit,
 ) {
     val isPreview = LocalInspectionMode.current
 
@@ -205,6 +206,22 @@ fun ProfileScreen(
                                 "Edit Profile",
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color.White
+                            )
+                        }
+
+                        Spacer(Modifier.height(8.dp))
+
+                        Button(
+                            onClick = onSendTestFollowRequest,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.outlinedButtonColors()
+                        ) {
+                            Text(
+                                "Send Test Follow Request",
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
 
@@ -434,7 +451,8 @@ private fun ProfilePreview() {
             onSignOutClick = {},
             onSettingsClick = {},
             onRecipeClick = {},
-            onShareClick = {}
+            onShareClick = {},
+            onSendTestFollowRequest = {}
         )
     }
 }
