@@ -87,6 +87,7 @@
         <activity android:name=".activities.SettingsActivity" />
         <activity android:name=".activities.AlertsActivity" />
         <activity android:name=".activities.RecipeDetailActivity"/>
+        <activity android:name=".activities.RecipeEditActivity" />
     </application>
 
 </manifest>
