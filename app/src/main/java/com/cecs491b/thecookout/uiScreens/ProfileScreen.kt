@@ -48,7 +48,8 @@ fun ProfileScreen(
     onEditProfileClick: () -> Unit,
     onSignOutClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    onRecipeClick: (Recipe) -> Unit
+    onRecipeClick: (Recipe) -> Unit,
+    onShareClick: () -> Unit
 ) {
     val isPreview = LocalInspectionMode.current
 
@@ -66,7 +67,7 @@ fun ProfileScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO: Share */ }) {
+                    IconButton(onClick = onShareClick) {
                         Icon(
                             Icons.Default.Share,
                             contentDescription = "Share",
@@ -432,7 +433,8 @@ private fun ProfilePreview() {
             onEditProfileClick = {},
             onSignOutClick = {},
             onSettingsClick = {},
-            onRecipeClick = {}
+            onRecipeClick = {},
+            onShareClick = {}
         )
     }
 }

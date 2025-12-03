@@ -131,8 +131,31 @@ class ProfileActivity : ComponentActivity() {
                 val intent = Intent(activity, RecipeDetailActivity::class.java)
                 intent.putExtra("recipeId", recipe.id)
                 activity.startActivity(intent)
+            },
+            onShareClick = {
+                activity.shareProfile(displayName, myRecipes.size)
             }
         )
+    }
+
+    private fun shareProfile(displayName: String, recipeCount: Int){
+        val userId = auth.currentUser?.uid ?: return
+        val shareText = """
+            Check out $displayName on The Cookout!
+            
+            They have $recipeCount delicious recipes to share.
+            
+            Download The Cookout app to see more!
+        """.trimIndent()
+
+        val sendIntent = Intent().apply{
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, shareText)
+            type = "text/plain"
+        }
+
+        val shareIntent = Intent.createChooser(sendIntent, "Share Profile")
+        startActivity(shareIntent)
     }
 
     private fun loadUserProfile(onComplete: (String, String, String, String) -> Unit) {
