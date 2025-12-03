@@ -47,7 +47,8 @@ fun ProfileScreen(
     onDeclineRequest: (String) -> Unit,
     onEditProfileClick: () -> Unit,
     onSignOutClick: () -> Unit,
-    onSettingsClick: () -> Unit
+    onSettingsClick: () -> Unit,
+    onRecipeClick: (Recipe) -> Unit
 ) {
     val isPreview = LocalInspectionMode.current
 
@@ -253,7 +254,9 @@ fun ProfileScreen(
                         items(myRecipes) { recipe ->
                             RecipeTile(imageUrl = recipe.photoUrl,
                                 title = recipe.title,
-                                isPreview = isPreview)
+                                isPreview = isPreview,
+                                onClick = { onRecipeClick(recipe)}
+                            )
                         }
                     }
                 }
@@ -271,11 +274,12 @@ fun ProfileScreen(
 }
 
 @Composable
-private fun RecipeTile(imageUrl: String?, title: String, isPreview: Boolean){
+private fun RecipeTile(imageUrl: String?, title: String, isPreview: Boolean, onClick: () -> Unit){
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(1f),
+            .aspectRatio(1f)
+            .clickable {onClick()},
         shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
@@ -427,7 +431,8 @@ private fun ProfilePreview() {
             onDeclineRequest = {},
             onEditProfileClick = {},
             onSignOutClick = {},
-            onSettingsClick = {}
+            onSettingsClick = {},
+            onRecipeClick = {}
         )
     }
 }

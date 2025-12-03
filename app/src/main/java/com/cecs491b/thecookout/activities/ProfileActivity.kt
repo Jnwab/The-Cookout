@@ -126,6 +126,11 @@ class ProfileActivity : ComponentActivity() {
                 activity.startActivity(
                     Intent(activity, SettingsActivity::class.java)
                 )
+            },
+            onRecipeClick = { recipe ->
+                val intent = Intent(activity, RecipeDetailActivity::class.java)
+                intent.putExtra("recipeId", recipe.id)
+                activity.startActivity(intent)
             }
         )
     }
