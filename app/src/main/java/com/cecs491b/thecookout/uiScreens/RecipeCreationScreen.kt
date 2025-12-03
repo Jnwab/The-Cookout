@@ -23,10 +23,13 @@ import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
 import androidx.compose.ui.tooling.preview.Preview
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImage
+import com.cecs491b.thecookout.viewmodels.PublishState
 import com.cecs491b.thecookout.viewmodels.RecipeCreationViewModel
 
 
@@ -34,6 +37,24 @@ import com.cecs491b.thecookout.viewmodels.RecipeCreationViewModel
 fun RecipeCreationScreen() {
     val navController = rememberNavController()
     val viewModel: RecipeCreationViewModel = viewModel()
+    val publishState by viewModel.publishState.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(publishState) {
+        when (val state = publishState){
+            is PublishState.Success -> {
+                Toast.makeText(context, "Recipe published!", Toast.LENGTH_SHORT).show()
+                viewModel.resetPublishState()
+                // go back to home page?
+            }
+            is PublishState.Error -> {
+                Toast.makeText(context, "Error: ${state.message}", Toast.LENGTH_LONG).show()
+                viewModel.resetPublishState()
+            }
+            else -> {}
+        }
+    }
+
 
     Scaffold(
         topBar = {
@@ -53,12 +74,20 @@ fun RecipeCreationScreen() {
             BottomAppBar(
                 {
                     Button(
-                        onClick = {
+                        onClick = { viewModel.publishRecipe()
                             // TODO: send payload of data here into database (can make a function in viewmodel)
                         },
+                        enabled = publishState !is PublishState.Loading,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
                     ) {
+                        if (publishState is PublishState.Loading){
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        } else {
                         Text("Publish Recipe")
+                        }
                     }
                 }
             )
