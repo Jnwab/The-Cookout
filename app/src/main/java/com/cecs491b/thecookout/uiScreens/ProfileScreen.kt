@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -37,6 +38,11 @@ fun ProfileScreen(
     phoneNumber: String,
     provider: String,
     isLoading: Boolean,
+    followerCount: Int,
+    followingCount: Int,
+    incomingRequests: List<String>,
+    onAcceptRequest: (String) -> Unit,
+    onDeclineRequest: (String) -> Unit,
     onEditProfileClick: () -> Unit,
     onSignOutClick: () -> Unit,
 ) {
@@ -48,14 +54,20 @@ fun ProfileScreen(
                 title = { },
                 navigationIcon = {
                     IconButton(onClick = { /* TODO: Settings */ }) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = "Settings",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 },
                 actions = {
                     IconButton(onClick = { /* TODO: Share */ }) {
-                        Icon(Icons.Default.Share, contentDescription = "Share",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(
+                            Icons.Default.Share,
+                            contentDescription = "Share",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
@@ -64,9 +76,13 @@ fun ProfileScreen(
     ) { paddingValues ->
         if (isLoading) {
             Box(
-                modifier = Modifier.fillMaxSize().padding(paddingValues),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
                 contentAlignment = Alignment.Center
-            ) { CircularProgressIndicator() }
+            ) {
+                CircularProgressIndicator()
+            }
         } else {
             Column(
                 modifier = Modifier
@@ -82,7 +98,9 @@ fun ProfileScreen(
                     color = MaterialTheme.colorScheme.surface
                 ) {
                     Column(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
@@ -123,12 +141,49 @@ fun ProfileScreen(
                         Spacer(Modifier.height(12.dp))
 
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
                             StatItem("47", "Recipes")
-                            StatItem("1284", "Followers")
-                            StatItem("432", "Following")
+                            StatItem(followerCount.toString(), "Followers")
+                            StatItem(followingCount.toString(), "Following")
+                        }
+
+                        // --- Follow requests section ---
+                        if (incomingRequests.isNotEmpty()) {
+                            Spacer(Modifier.height(16.dp))
+                            Text(
+                                text = "Follow requests",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(Modifier.height(8.dp))
+
+                            incomingRequests.forEach { requesterUid ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = requesterUid,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+
+                                    Row {
+                                        TextButton(onClick = { onAcceptRequest(requesterUid) }) {
+                                            Text("Accept")
+                                        }
+                                        TextButton(onClick = { onDeclineRequest(requesterUid) }) {
+                                            Text("Decline")
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                         Spacer(Modifier.height(16.dp))
@@ -137,11 +192,17 @@ fun ProfileScreen(
 
                         Button(
                             onClick = onEditProfileClick,
-                            modifier = Modifier.fillMaxWidth().height(48.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp),
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = CookoutOrange)
                         ) {
-                            Text("Edit Profile", fontWeight = FontWeight.SemiBold, color = Color.White)
+                            Text(
+                                "Edit Profile",
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color.White
+                            )
                         }
 
                         Spacer(Modifier.height(12.dp))
@@ -153,7 +214,9 @@ fun ProfileScreen(
                     text = "My Recipes",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp)
                 )
 
                 Spacer(Modifier.height(12.dp))
@@ -215,7 +278,6 @@ private fun Avatar(isPreview: Boolean) {
             // runtime: load from network
             AsyncImage(
                 model = "https://marketplace.canva.com/8-1Kc/MAGoQJ8-1Kc/1/tl/canva-ginger-cat-with-paws-raised-in-air-MAGoQJ8-1Kc.jpg",
-                //model = avatarUrl,
                 contentDescription = "Profile Photo",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -238,8 +300,12 @@ private fun Avatar(isPreview: Boolean) {
             shadowElevation = 2.dp
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(Icons.Default.CameraAlt, contentDescription = "Change Photo",
-                    tint = Color.White, modifier = Modifier.size(16.dp))
+                Icon(
+                    Icons.Default.CameraAlt,
+                    contentDescription = "Change Photo",
+                    tint = Color.White,
+                    modifier = Modifier.size(16.dp)
+                )
             }
         }
     }
@@ -248,18 +314,32 @@ private fun Avatar(isPreview: Boolean) {
 @Composable
 private fun StatItem(count: String, label: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(count, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = CookoutOrange)
-        Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            count,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = CookoutOrange
+        )
+        Text(
+            label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
 @Composable
 private fun RecipeTile(imageUrl: String, isPreview: Boolean) {
     Surface(
-        modifier = Modifier.fillMaxWidth().aspectRatio(1f),
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1f),
         shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+        border = BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+        )
     ) {
         if (isPreview) {
             // preview-friendly placeholder block
@@ -281,7 +361,11 @@ private fun RecipeTile(imageUrl: String, isPreview: Boolean) {
 
 /* --- preview --- */
 
-@Preview(showBackground = true, showSystemUi = true, name = "Profile – Preview (placeholders)")
+@Preview(
+    showBackground = true,
+    showSystemUi = true,
+    name = "Profile – Preview (placeholders)"
+)
 @Composable
 private fun ProfilePreview() {
     TheCookoutTheme {
@@ -291,6 +375,11 @@ private fun ProfilePreview() {
             phoneNumber = "",
             provider = "google",
             isLoading = false,
+            followerCount = 12,
+            followingCount = 5,
+            incomingRequests = listOf("uid_abc123", "uid_xyz789"),
+            onAcceptRequest = {},
+            onDeclineRequest = {},
             onEditProfileClick = {},
             onSignOutClick = {}
         )

@@ -23,10 +23,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import com.cecs491b.thecookout.uiScreens.BottomNavBar
+import androidx.activity.viewModels
+import androidx.compose.runtime.collectAsState
+import com.cecs491b.thecookout.viewmodels.FollowersViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ProfileActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
+
+    private val followersVm: FollowersViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +59,7 @@ class ProfileActivity : ComponentActivity() {
                         }
                     ) { pad ->
                         Box(Modifier.padding(pad)) {
-                            ProfileContent()
+                            ProfileContent(followersVm)
                         }
                     }
                 }
@@ -61,16 +68,18 @@ class ProfileActivity : ComponentActivity() {
     }
 
     @Composable
-    fun ProfileContent() {
+    fun ProfileContent(followersVm: FollowersViewModel) {
+        val activity = this@ProfileActivity
+
         var displayName by remember { mutableStateOf("") }
         var email by remember { mutableStateOf("") }
         var phoneNumber by remember { mutableStateOf("") }
         var provider by remember { mutableStateOf("") }
         var isLoading by remember { mutableStateOf(true) }
 
-
+        // load the basic profile from Firestore/Auth once
         LaunchedEffect(Unit) {
-            loadUserProfile { name, mail, phone, prov ->
+            activity.loadUserProfile { name, mail, phone, prov ->
                 displayName = name
                 email = mail
                 phoneNumber = phone
@@ -79,25 +88,30 @@ class ProfileActivity : ComponentActivity() {
             }
         }
 
+        val followersState by followersVm.uiState.collectAsState()
+
         ProfileScreen(
             displayName = displayName,
             email = email,
             phoneNumber = phoneNumber,
             provider = provider,
             isLoading = isLoading,
-            //onChangeAvatarClick = {
-            //    pickAvatar.launch(
-            //        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            //    )
-            //},*/
+            followerCount = followersState.followerCount,
+            followingCount = followersState.followingCount,
+            incomingRequests = followersState.incomingRequests,
+            onAcceptRequest = { uid -> followersVm.acceptFollowRequest(uid) },
+            onDeclineRequest = { uid -> followersVm.declineFollowRequest(uid) },
             onEditProfileClick = {
-                startActivity(Intent(this@ProfileActivity, EditProfileActivity::class.java))
+                activity.startActivity(
+                    Intent(activity, EditProfileActivity::class.java)
+                )
             },
             onSignOutClick = {
-                handleSignOut()
+                activity.handleSignOut()
             }
         )
     }
+
 
     private fun loadUserProfile(onComplete: (String, String, String, String) -> Unit) {
         val user = auth.currentUser
