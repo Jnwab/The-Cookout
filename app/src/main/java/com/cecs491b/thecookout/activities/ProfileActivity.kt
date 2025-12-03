@@ -27,6 +27,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import com.cecs491b.thecookout.models.Recipe
 
 @AndroidEntryPoint
 class ProfileActivity : ComponentActivity() {
@@ -83,6 +84,8 @@ class ProfileActivity : ComponentActivity() {
         var provider by remember { mutableStateOf("") }
         var isLoading by remember { mutableStateOf(true) }
 
+        var myRecipes by remember { mutableStateOf<List<Recipe>>(emptyList())}
+
         // load user profile once when this composable first appears
         LaunchedEffect(Unit) {
             activity.loadUserProfile { name, mail, phone, prov ->
@@ -91,6 +94,9 @@ class ProfileActivity : ComponentActivity() {
                 phoneNumber = phone
                 provider = prov
                 isLoading = false
+            }
+            activity.loadMyRecipes{recipes ->
+                myRecipes = recipes
             }
         }
 
@@ -104,6 +110,7 @@ class ProfileActivity : ComponentActivity() {
             isLoading = isLoading,
             followerCount = followersState.followerCount,
             followingCount = followersState.followingCount,
+            myRecipes = myRecipes,
             incomingRequests = followersState.incomingRequests,
             onAcceptRequest = { uid -> followersVm.acceptFollowRequest(uid) },
             onDeclineRequest = { uid -> followersVm.declineFollowRequest(uid) },
@@ -150,6 +157,23 @@ class ProfileActivity : ComponentActivity() {
             .addOnFailureListener {
                 Toast.makeText(this, "Failed to load profile", Toast.LENGTH_SHORT).show()
                 onComplete(displayNameFromAuth, email, "", "email")
+            }
+    }
+
+    private fun loadMyRecipes(onComplete: (List<Recipe>) -> Unit){
+        val userId = auth.currentUser?.uid ?: return onComplete(emptyList())
+
+        db.collection("recipes")
+            .whereEqualTo("authorId", userId)
+            .get()
+            .addOnSuccessListener { snapshot ->
+               val recipes = snapshot.documents.mapNotNull {
+                   doc -> doc.toObject(Recipe::class.java)
+               }
+                onComplete(recipes)
+            }
+            .addOnFailureListener {
+                onComplete(emptyList())
             }
     }
 
