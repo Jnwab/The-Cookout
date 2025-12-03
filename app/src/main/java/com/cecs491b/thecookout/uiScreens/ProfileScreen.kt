@@ -45,6 +45,7 @@ fun ProfileScreen(
     onDeclineRequest: (String) -> Unit,
     onEditProfileClick: () -> Unit,
     onSignOutClick: () -> Unit,
+    onSettingsClick: () -> Unit
 ) {
     val isPreview = LocalInspectionMode.current
 
@@ -53,7 +54,7 @@ fun ProfileScreen(
             TopAppBar(
                 title = { },
                 navigationIcon = {
-                    IconButton(onClick = { /* TODO: Settings */ }) {
+                    IconButton(onClick = onSettingsClick) {
                         Icon(
                             Icons.Default.Settings,
                             contentDescription = "Settings",
@@ -117,7 +118,6 @@ fun ProfileScreen(
 
                         Spacer(Modifier.height(16.dp))
 
-                        // Avatar — runtime loads from URL, preview shows placeholder
                         Avatar(isPreview = isPreview)
 
                         Spacer(Modifier.height(12.dp))
@@ -151,7 +151,6 @@ fun ProfileScreen(
                             StatItem(followingCount.toString(), "Following")
                         }
 
-                        // --- Follow requests section ---
                         if (incomingRequests.isNotEmpty()) {
                             Spacer(Modifier.height(16.dp))
                             Text(
@@ -222,12 +221,12 @@ fun ProfileScreen(
                 Spacer(Modifier.height(12.dp))
 
                 val sampleDishes = listOf(
-                    "https://images.unsplash.com/photo-1600891964599-f61ba0e24092", // pasta
-                    "https://images.unsplash.com/photo-1617196034796-1f84b2b6c8f7", // dessert
-                    "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f", // salad
-                    "https://images.unsplash.com/photo-1589307004391-95d2d8b92a4e", // smoothie
-                    "https://images.unsplash.com/photo-1605478441568-dad29db7f66a", // pancakes
-                    "https://images.unsplash.com/photo-1504674900247-0877df9cc836"  // burger
+                    "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
+                    "https://images.unsplash.com/photo-1617196034796-1f84b2b6c8f7",
+                    "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f",
+                    "https://images.unsplash.com/photo-1589307004391-95d2d8b92a4e",
+                    "https://images.unsplash.com/photo-1605478441568-dad29db7f66a",
+                    "https://images.unsplash.com/photo-1504674900247-0877df9cc836"
                 )
 
                 LazyVerticalGrid(
@@ -253,13 +252,10 @@ fun ProfileScreen(
     }
 }
 
-/* --- helpers --- */
-
 @Composable
 private fun Avatar(isPreview: Boolean) {
     Box(modifier = Modifier.size(110.dp)) {
         if (isPreview) {
-            // preview-friendly placeholder (no internet in Preview)
             Box(
                 modifier = Modifier
                     .size(110.dp)
@@ -275,7 +271,6 @@ private fun Avatar(isPreview: Boolean) {
                 )
             }
         } else {
-            // runtime: load from network
             AsyncImage(
                 model = "https://marketplace.canva.com/8-1Kc/MAGoQJ8-1Kc/1/tl/canva-ginger-cat-with-paws-raised-in-air-MAGoQJ8-1Kc.jpg",
                 contentDescription = "Profile Photo",
@@ -284,17 +279,16 @@ private fun Avatar(isPreview: Boolean) {
                     .size(110.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .clickable { /*onChangeAvatarClick()*/ }
+                    .clickable { /* TODO change avatar */ }
             )
         }
 
-        // camera badge
         Surface(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .offset(x = (-6).dp, y = (-6).dp)
                 .size(30.dp)
-                .clickable { /*onChangeAvatarClick()*/ },
+                .clickable { /* TODO change avatar */ },
             shape = CircleShape,
             color = CookoutOrange,
             shadowElevation = 2.dp
@@ -342,7 +336,6 @@ private fun RecipeTile(imageUrl: String, isPreview: Boolean) {
         )
     ) {
         if (isPreview) {
-            // preview-friendly placeholder block
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -358,8 +351,6 @@ private fun RecipeTile(imageUrl: String, isPreview: Boolean) {
         }
     }
 }
-
-/* --- preview --- */
 
 @Preview(
     showBackground = true,
@@ -381,7 +372,8 @@ private fun ProfilePreview() {
             onAcceptRequest = {},
             onDeclineRequest = {},
             onEditProfileClick = {},
-            onSignOutClick = {}
+            onSignOutClick = {},
+            onSettingsClick = {}
         )
     }
 }

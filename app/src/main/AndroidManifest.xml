@@ -84,6 +84,8 @@
         <activity
             android:name=".activities.SavedPostsActivity"
             android:exported="false" />
+        <activity android:name=".activities.SettingsActivity" />
+        <activity android:name=".activities.AlertsActivity" />
     </application>
 
 </manifest>
