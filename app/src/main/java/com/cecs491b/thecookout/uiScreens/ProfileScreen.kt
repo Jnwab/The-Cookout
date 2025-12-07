@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.cecs491b.thecookout.ui.theme.CookoutOrange
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
+import com.cecs491b.thecookout.models.Recipe
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,11 +41,16 @@ fun ProfileScreen(
     isLoading: Boolean,
     followerCount: Int,
     followingCount: Int,
+    myRecipes: List<Recipe>,
     incomingRequests: List<String>,
     onAcceptRequest: (String) -> Unit,
     onDeclineRequest: (String) -> Unit,
     onEditProfileClick: () -> Unit,
     onSignOutClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onRecipeClick: (Recipe) -> Unit,
+    onShareClick: () -> Unit,
+    onSendTestFollowRequest: () -> Unit,
 ) {
     val isPreview = LocalInspectionMode.current
 
@@ -53,7 +59,7 @@ fun ProfileScreen(
             TopAppBar(
                 title = { },
                 navigationIcon = {
-                    IconButton(onClick = { /* TODO: Settings */ }) {
+                    IconButton(onClick = onSettingsClick) {
                         Icon(
                             Icons.Default.Settings,
                             contentDescription = "Settings",
@@ -62,7 +68,7 @@ fun ProfileScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO: Share */ }) {
+                    IconButton(onClick = onShareClick) {
                         Icon(
                             Icons.Default.Share,
                             contentDescription = "Share",
@@ -117,7 +123,6 @@ fun ProfileScreen(
 
                         Spacer(Modifier.height(16.dp))
 
-                        // Avatar — runtime loads from URL, preview shows placeholder
                         Avatar(isPreview = isPreview)
 
                         Spacer(Modifier.height(12.dp))
@@ -146,12 +151,11 @@ fun ProfileScreen(
                                 .padding(horizontal = 8.dp),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            StatItem("47", "Recipes")
+                            StatItem(myRecipes.size.toString(), "Recipes")
                             StatItem(followerCount.toString(), "Followers")
                             StatItem(followingCount.toString(), "Following")
                         }
 
-                        // --- Follow requests section ---
                         if (incomingRequests.isNotEmpty()) {
                             Spacer(Modifier.height(16.dp))
                             Text(
@@ -205,6 +209,22 @@ fun ProfileScreen(
                             )
                         }
 
+                        Spacer(Modifier.height(8.dp))
+
+                        Button(
+                            onClick = onSendTestFollowRequest,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.outlinedButtonColors()
+                        ) {
+                            Text(
+                                "Send Test Follow Request",
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+
                         Spacer(Modifier.height(12.dp))
                     }
                 }
@@ -221,23 +241,41 @@ fun ProfileScreen(
 
                 Spacer(Modifier.height(12.dp))
 
-                val sampleDishes = listOf(
-                    "https://images.unsplash.com/photo-1600891964599-f61ba0e24092", // pasta
-                    "https://images.unsplash.com/photo-1617196034796-1f84b2b6c8f7", // dessert
-                    "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f", // salad
-                    "https://images.unsplash.com/photo-1589307004391-95d2d8b92a4e", // smoothie
-                    "https://images.unsplash.com/photo-1605478441568-dad29db7f66a", // pancakes
-                    "https://images.unsplash.com/photo-1504674900247-0877df9cc836"  // burger
-                )
+//                val sampleDishes = listOf(
+//                    "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
+//                    "https://images.unsplash.com/photo-1617196034796-1f84b2b6c8f7",
+//                    "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f",
+//                    "https://images.unsplash.com/photo-1589307004391-95d2d8b92a4e",
+//                    "https://images.unsplash.com/photo-1605478441568-dad29db7f66a",
+//                    "https://images.unsplash.com/photo-1504674900247-0877df9cc836"
+//                )
 
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    items(sampleDishes.size) { index ->
-                        RecipeTile(imageUrl = sampleDishes[index], isPreview = isPreview)
+                if (myRecipes.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(150.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("No recipes yet. Tap + to start cooking one up!",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+                else{
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(myRecipes) { recipe ->
+                            RecipeTile(imageUrl = recipe.photoUrl,
+                                title = recipe.title,
+                                isPreview = isPreview,
+                                onClick = { onRecipeClick(recipe)}
+                            )
+                        }
                     }
                 }
 
@@ -253,13 +291,46 @@ fun ProfileScreen(
     }
 }
 
-/* --- helpers --- */
+@Composable
+private fun RecipeTile(imageUrl: String?, title: String, isPreview: Boolean, onClick: () -> Unit){
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1f)
+            .clickable {onClick()},
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+    ) {
+        if (isPreview || imageUrl == null){
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ){
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+        } else {
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = title,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    }
+}
 
 @Composable
 private fun Avatar(isPreview: Boolean) {
     Box(modifier = Modifier.size(110.dp)) {
         if (isPreview) {
-            // preview-friendly placeholder (no internet in Preview)
             Box(
                 modifier = Modifier
                     .size(110.dp)
@@ -275,7 +346,6 @@ private fun Avatar(isPreview: Boolean) {
                 )
             }
         } else {
-            // runtime: load from network
             AsyncImage(
                 model = "https://marketplace.canva.com/8-1Kc/MAGoQJ8-1Kc/1/tl/canva-ginger-cat-with-paws-raised-in-air-MAGoQJ8-1Kc.jpg",
                 contentDescription = "Profile Photo",
@@ -284,17 +354,16 @@ private fun Avatar(isPreview: Boolean) {
                     .size(110.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .clickable { /*onChangeAvatarClick()*/ }
+                    .clickable { /* TODO change avatar */ }
             )
         }
 
-        // camera badge
         Surface(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .offset(x = (-6).dp, y = (-6).dp)
                 .size(30.dp)
-                .clickable { /*onChangeAvatarClick()*/ },
+                .clickable { /* TODO change avatar */ },
             shape = CircleShape,
             color = CookoutOrange,
             shadowElevation = 2.dp
@@ -328,38 +397,35 @@ private fun StatItem(count: String, label: String) {
     }
 }
 
-@Composable
-private fun RecipeTile(imageUrl: String, isPreview: Boolean) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(1f),
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        border = BorderStroke(
-            1.dp,
-            MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
-        )
-    ) {
-        if (isPreview) {
-            // preview-friendly placeholder block
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-            )
-        } else {
-            AsyncImage(
-                model = imageUrl,
-                contentDescription = "Dish Image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-    }
-}
-
-/* --- preview --- */
+//@Composable
+//private fun RecipeTile(imageUrl: String?, isPreview: Boolean) {
+//    Surface(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .aspectRatio(1f),
+//        shape = RoundedCornerShape(16.dp),
+//        color = MaterialTheme.colorScheme.surfaceVariant,
+//        border = BorderStroke(
+//            1.dp,
+//            MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+//        )
+//    ) {
+//        if (isPreview) {
+//            Box(
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .background(MaterialTheme.colorScheme.surfaceVariant)
+//            )
+//        } else {
+//            AsyncImage(
+//                model = imageUrl,
+//                contentDescription = "Dish Image",
+//                contentScale = ContentScale.Crop,
+//                modifier = Modifier.fillMaxSize()
+//            )
+//        }
+//    }
+//}
 
 @Preview(
     showBackground = true,
@@ -377,11 +443,16 @@ private fun ProfilePreview() {
             isLoading = false,
             followerCount = 12,
             followingCount = 5,
+            myRecipes = emptyList(),
             incomingRequests = listOf("uid_abc123", "uid_xyz789"),
             onAcceptRequest = {},
             onDeclineRequest = {},
             onEditProfileClick = {},
-            onSignOutClick = {}
+            onSignOutClick = {},
+            onSettingsClick = {},
+            onRecipeClick = {},
+            onShareClick = {},
+            onSendTestFollowRequest = {}
         )
     }
 }
