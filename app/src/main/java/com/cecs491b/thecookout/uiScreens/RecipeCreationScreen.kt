@@ -22,6 +22,21 @@ import androidx.navigation.compose.*
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
 import androidx.compose.ui.tooling.preview.Preview
 
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
+
+import android.widget.Toast
+
+import com.cecs491b.thecookout.network.RetrofitClient
+import com.cecs491b.thecookout.network.TikTokRequest
+
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -91,11 +106,67 @@ private fun getTitleForRoute(route: String?): String {
 @Composable
 fun RecipeCreationMainScreen(navController: NavHostController, viewModel: RecipeCreationViewModel) {
 
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    var tiktokUrl by rememberSaveable { mutableStateOf("") }
+
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
         viewModel.photoUri = uri
     }
+
+    val videoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            scope.launch {
+                // call backend with this uri
+                viewModel.isImportingFromVideo = true
+                viewModel.importErrorMessage = null
+                try {
+                    val api = RetrofitClient.api
+                    val contentResolver = context.contentResolver
+
+                    val mimeType = contentResolver.getType(uri) ?: "video/mp4"
+                    val input = contentResolver.openInputStream(uri)
+                        ?: throw IllegalStateException("Unable to open video")
+
+                    val bytes = input.use { it.readBytes() }
+
+                    val requestBody = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
+                    val filePart = MultipartBody.Part.createFormData(
+                        name = "file",
+                        filename = "video.mp4",
+                        body = requestBody
+                    )
+
+                    val response = withContext(Dispatchers.IO) {
+                        api.parseRecipe(filePart)
+                    }
+
+                    if (response.isSuccessful) {
+                        val recipe = response.body()
+                        if (recipe != null) {
+                            viewModel.applyParsedRecipe(recipe)
+                            Toast.makeText(context, "Recipe imported from video!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            viewModel.importErrorMessage = "Empty response from backend."
+                        }
+                    } else {
+                        viewModel.importErrorMessage =
+                            "Backend error ${response.code()}: ${response.errorBody()?.string()}"
+                    }
+                } catch (e: Exception) {
+                    viewModel.importErrorMessage = e.message ?: "Unknown error during import"
+                } finally {
+                    viewModel.isImportingFromVideo = false
+                }
+            }
+        }
+    }
+
 
 
     val scrollState = rememberScrollState()
@@ -135,6 +206,109 @@ fun RecipeCreationMainScreen(navController: NavHostController, viewModel: Recipe
             }
         }
         Spacer(Modifier.height(5.dp))
+
+        Text(
+            text = "Import From Cooking Video",
+            style = MaterialTheme.typography.headlineSmall
+        )
+
+        Button(
+            onClick = {
+                videoPickerLauncher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly)
+                )
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !viewModel.isImportingFromVideo
+        ) {
+            if (viewModel.isImportingFromVideo) {
+                CircularProgressIndicator(
+                    strokeWidth = 2.dp,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .padding(end = 8.dp)
+                )
+                Text("Importing...")
+            } else {
+                Text("Select Video to Autofill")
+            }
+        }
+
+        Spacer(Modifier.height(5.dp))
+
+        Text(
+            text = "Import From TikTok URL",
+            style = MaterialTheme.typography.headlineSmall
+        )
+
+        OutlinedTextField(
+            value = tiktokUrl,
+            onValueChange = { tiktokUrl = it },
+            label = { Text("Paste TikTok link here") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Button(
+            onClick = {
+                if (tiktokUrl.isBlank()) {
+                    Toast.makeText(context, "Please paste a TikTok URL first", Toast.LENGTH_SHORT).show()
+                } else {
+                    scope.launch {
+                        viewModel.isImportingFromVideo = true
+                        viewModel.importErrorMessage = null
+                        try {
+                            val api = RetrofitClient.api
+                            val response = withContext(Dispatchers.IO) {
+                                api.parseRecipeFromTikTok(TikTokRequest(url = tiktokUrl))
+                            }
+                            if (response.isSuccessful) {
+                                val recipe = response.body()
+                                if (recipe != null) {
+                                    viewModel.applyParsedRecipe(recipe)
+                                    Toast.makeText(context, "Recipe imported from TikTok!", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    viewModel.importErrorMessage = "Empty response from backend."
+                                }
+                            } else {
+                                viewModel.importErrorMessage =
+                                    "Backend error ${response.code()}: ${response.errorBody()?.string()}"
+                            }
+                        } catch (e: Exception) {
+                            viewModel.importErrorMessage = e.message ?: "Unknown error while importing from TikTok"
+                        } finally {
+                            viewModel.isImportingFromVideo = false
+                        }
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !viewModel.isImportingFromVideo
+        ) {
+            if (viewModel.isImportingFromVideo) {
+                CircularProgressIndicator(
+                    strokeWidth = 2.dp,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .padding(end = 8.dp)
+                )
+                Text("Importing...")
+            } else {
+                Text("Import from URL")
+            }
+        }
+
+        viewModel.importErrorMessage?.let { err ->
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = err,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
+
+
         Text(
             text = "Recipe Title",
             style = MaterialTheme.typography.headlineSmall
