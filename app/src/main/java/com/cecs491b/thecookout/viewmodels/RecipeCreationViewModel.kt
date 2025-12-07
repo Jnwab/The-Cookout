@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.flow.StateFlow
+import com.cecs491b.thecookout.models.RecipeDto
 
 sealed class PublishState{
     object Idle: PublishState()
@@ -23,7 +24,6 @@ sealed class PublishState{
     data class Success(val recipeId: String): PublishState()
     data class Error(val message:String): PublishState()
 }
-import com.cecs491b.thecookout.models.RecipeDto
 
 class RecipeCreationViewModel : ViewModel() {
 

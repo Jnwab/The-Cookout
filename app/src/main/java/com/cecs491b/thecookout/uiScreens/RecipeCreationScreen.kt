@@ -21,24 +21,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
 import androidx.compose.ui.tooling.preview.Preview
-
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
-
 import android.widget.Toast
-
 import com.cecs491b.thecookout.network.RetrofitClient
 import com.cecs491b.thecookout.network.TikTokRequest
-
-
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
