@@ -1,0 +1,9 @@
+{
+  "name": "cookout-auth",
+  "private": true,
+  "type": "module",
+  "engines": { "node": "18.x" },
+  "dependencies": {
+    "firebase-admin": "^12.5.0"
+  }
+}
