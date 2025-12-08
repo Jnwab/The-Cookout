@@ -64,83 +64,83 @@ val categories = listOf("All", "Breakfast", "Lunch", "Dinner", "Desserts")
 
 internal val demoRecipes = listOf(
     Recipe(
-        "1", "Classic Beef Burger", "Sarah Kitchen", 124, 1, 15,
-        "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200&q=80&auto=format&fit=crop",
+        "1", "Classic Beef Burger", "Sarah Kitchen", 676, 1, 15,
+        "https://www.allrecipes.com/thmb/5JVfA7MxfTUPfRerQMdF-nGKsLY=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/25473-the-perfect-basic-burger-DDMFS-4x3-56eaba3833fd4a26a82755bcd0be0c54.jpg",
         "Lunch"
     ),
     Recipe(
         "2", "Creamy Pasta Carbonara", "Chef Marco", 256, 42, 20,
-        "https://images.unsplash.com/photo-1521389508051-d7ffb5dc8bbf?w=1200&q=80&auto=format&fit=crop",
+        "https://therecipecritic.com/wp-content/uploads/2012/07/creamy_bacon_carbonara.jpg",
         "Dinner"
     ),
     Recipe(
         "3", "Fresh Garden Salad", "Emma Green", 189, 23, 8,
-        "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=1200&q=80&auto=format&fit=crop",
+        "https://feelgoodfoodie.net/wp-content/uploads/2023/03/Everyday-Garden-Salad-07.jpg",
         "Lunch"
     ),
     Recipe(
         "4", "Margherita Pizza", "Tony's Kitchen", 342, 66, 25,
-        "https://images.unsplash.com/photo-1548365328-9f547fb09550?w=1200&q=80&auto=format&fit=crop",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRoD0mNU4MlbDRw_NgpU-q8gw799bMypX73iA&s",
         "Dinner"
     ),
     Recipe(
         "5", "Garlic Butter Steak Bites", "Chef Nina", 211, 18, 14,
-        "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=1200&q=80&auto=format&fit=crop",
+        "https://www.modernhoney.com/wp-content/uploads/2022/09/Garlic-Butter-Steak-Bites-9-scaled.jpg",
         "Dinner"
     ),
     Recipe(
         "6", "Spicy Chicken Wings", "BBQ Pro", 289, 34, 30,
-        "https://images.unsplash.com/photo-1544025162-d76694265947?w=1200&q=80&auto=format&fit=crop",
+        "https://bakerbynature.com/wp-content/uploads/2015/02/Sweet-and-Spicy-Sriracha-Chicken-Wings-0-6.jpg",
         "Dinner"
     ),
     Recipe(
         "7", "Sushi Platter", "Hana", 412, 77, 35,
-        "https://images.unsplash.com/photo-1553621042-f6e147245754?w=1200&q=80&auto=format&fit=crop",
+        "https://cdn.foodstorm.com/e5184b75632349358c9031c2ef988e6b/images/0ac13014da6f4fd1adee7eb7fc2f70eb_1080w.jpg",
         "Lunch"
     ),
     Recipe(
         "8", "Avocado Toast", "Liam", 98, 9, 6,
-        "https://images.unsplash.com/photo-1551183053-8f9bdb7b0f91?w=1200&q=80&auto=format&fit=crop",
+        "https://gratefulgrazer.com/wp-content/uploads/2025/01/avocado-toast-square.jpg",
         "Breakfast"
     ),
     Recipe(
         "9", "Blueberry Pancakes", "Mila", 265, 19, 18,
-        "https://images.unsplash.com/photo-1587731544311-5f87fbb77f89?w=1200&q=80&auto=format&fit=crop",
+        "https://www.thespruceeats.com/thmb/9IRYWPZ9ydGFZFtxthmtAR150VM=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/blueberry-ricotta-pancakes-541279742-5ab2d59d04d1cf0036f81d80.jpg",
         "Breakfast"
     ),
     Recipe(
         "10", "French Toast Stacks", "Andre", 233, 14, 17,
-        "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=1200&q=80&auto=format&fit=crop",
+        "https://altonbrown.com/wp-content/uploads/2020/08/French-Toast-Stack_Lynne_resized.jpg",
         "Breakfast"
     ),
     Recipe(
         "11", "Yogurt Parfait", "Casey", 120, 6, 5,
-        "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=1200&q=80&auto=format&fit=crop",
+        "https://spicecravings.com/wp-content/uploads/2023/09/Greek-Yogurt-Parfait-Featured.jpg",
         "Breakfast"
     ),
     Recipe(
         "12", "Chocolate Lava Cake", "Patissier Eloise", 501, 120, 22,
-        "https://images.unsplash.com/photo-1606313564200-e75d5e30476f?w=1200&q=80&auto=format&fit=crop",
+        "https://www.melskitchencafe.com/wp-content/uploads/2023/01/updated-lava-cakes7-500x500.jpg",
         "Desserts"
     ),
     Recipe(
         "13", "Tiramisu Cups", "Giulia", 432, 90, 30,
-        "https://images.unsplash.com/photo-1606756790138-261c0b9b1800?w=1200&q=80&auto=format&fit=crop",
+        "https://bakerstable.net/wp-content/uploads/2024/08/tiramisu-cups-4-scaled.jpg",
         "Desserts"
     ),
     Recipe(
         "14", "Strawberry Cheesecake", "Baker Zoe", 389, 64, 40,
-        "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=1200&q=80&auto=format&fit=crop",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZLcX5NeFrqrgb6Y7XRZ4loW2X7xhlRn56Tw&s",
         "Desserts"
     ),
     Recipe(
         "15", "Macarons Assortment", "Maison Pierre", 275, 38, 50,
-        "https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=1200&q=80&auto=format&fit=crop",
+        "https://www.jordanwinery.com/wp-content/uploads/2020/04/French-Macaron-Cookie-Recipe-WebHero-6435.jpg",
         "Desserts"
     ),
     Recipe(
         "16", "Matcha Ice Cream", "Kiko", 198, 22, 10,
-        "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=1200&q=80&auto=format&fit=crop",
+        "https://www.allrecipes.com/thmb/totJUia-TjrmF6VnYGHOM5hVjqQ=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/241759-matcha-green-tea-ice-cream-VAT-003-4x3-01closeup-692d327cc2174abb84b440568f61e29a.jpg",
         "Desserts"
     )
 )

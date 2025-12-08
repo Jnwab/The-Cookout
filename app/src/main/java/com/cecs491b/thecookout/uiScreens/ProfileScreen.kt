@@ -4,9 +4,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -27,9 +26,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.cecs491b.thecookout.models.Recipe
 import com.cecs491b.thecookout.ui.theme.CookoutOrange
 import com.cecs491b.thecookout.ui.theme.TheCookoutTheme
-import com.cecs491b.thecookout.models.Recipe
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,7 +49,7 @@ fun ProfileScreen(
     onSettingsClick: () -> Unit,
     onRecipeClick: (Recipe) -> Unit,
     onShareClick: () -> Unit,
-    onSendTestFollowRequest: () -> Unit,
+    onSendTestFollowRequest: () -> Unit, // kept for compatibility, not used
 ) {
     val isPreview = LocalInspectionMode.current
 
@@ -90,225 +89,229 @@ fun ProfileScreen(
                 CircularProgressIndicator()
             }
         } else {
-            Column(
+            // Everything scrolls together
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
                     .padding(horizontal = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                contentPadding = PaddingValues(bottom = 16.dp)
             ) {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(18.dp),
-                    tonalElevation = 2.dp,
-                    color = MaterialTheme.colorScheme.surface
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                // -------- Profile card --------
+                item {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(18.dp),
+                        tonalElevation = 2.dp,
+                        color = MaterialTheme.colorScheme.surface
                     ) {
-                        Text(
-                            text = "The Cookout",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = CookoutOrange,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Share your recipes!",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-
-                        Spacer(Modifier.height(16.dp))
-
-                        Avatar(isPreview = isPreview)
-
-                        Spacer(Modifier.height(12.dp))
-                        Text(
-                            text = displayName.ifBlank { "Cookout Crew" },
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            text = "Sharing delicious recipes and cooking adventures",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(horizontal = 12.dp)
-                        )
-
-                        Spacer(Modifier.height(16.dp))
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                        Spacer(Modifier.height(12.dp))
-
-                        Row(
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceEvenly
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            StatItem(myRecipes.size.toString(), "Recipes")
-                            StatItem(followerCount.toString(), "Followers")
-                            StatItem(followingCount.toString(), "Following")
-                        }
-
-                        if (incomingRequests.isNotEmpty()) {
-                            Spacer(Modifier.height(16.dp))
                             Text(
-                                text = "Follow requests",
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.SemiBold
+                                text = "The Cookout",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = CookoutOrange,
+                                fontWeight = FontWeight.Bold
                             )
-                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = "Share your recipes!",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
 
-                            incomingRequests.forEach { requesterUid ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 4.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = requesterUid,
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
+                            Spacer(Modifier.height(16.dp))
 
-                                    Row {
-                                        TextButton(onClick = { onAcceptRequest(requesterUid) }) {
-                                            Text("Accept")
-                                        }
-                                        TextButton(onClick = { onDeclineRequest(requesterUid) }) {
-                                            Text("Decline")
+                            Avatar(isPreview = isPreview)
+
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                text = displayName.ifBlank { "Cookout Crew" },
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.SemiBold,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                text = "Sharing delicious recipes and cooking adventures",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(horizontal = 12.dp)
+                            )
+
+                            Spacer(Modifier.height(16.dp))
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                            Spacer(Modifier.height(12.dp))
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                StatItem(myRecipes.size.toString(), "Recipes")
+                                StatItem(followerCount.toString(), "Followers")
+                                StatItem(followingCount.toString(), "Following")
+                            }
+
+                            if (incomingRequests.isNotEmpty()) {
+                                Spacer(Modifier.height(16.dp))
+                                Text(
+                                    text = "Follow requests",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Spacer(Modifier.height(8.dp))
+
+                                incomingRequests.forEach { requesterUid ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 4.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = requesterUid,
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+
+                                        Row {
+                                            TextButton(onClick = { onAcceptRequest(requesterUid) }) {
+                                                Text("Accept")
+                                            }
+                                            TextButton(onClick = { onDeclineRequest(requesterUid) }) {
+                                                Text("Decline")
+                                            }
                                         }
                                     }
                                 }
                             }
+
+                            Spacer(Modifier.height(16.dp))
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                            Spacer(Modifier.height(16.dp))
+
+                            Button(
+                                onClick = onEditProfileClick,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(48.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = CookoutOrange)
+                            ) {
+                                Text(
+                                    "Edit Profile",
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color.White
+                                )
+                            }
+
+                            // Removed "Send Test Follow Request" button from UI
+
+                            Spacer(Modifier.height(12.dp))
                         }
+                    }
 
-                        Spacer(Modifier.height(16.dp))
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                        Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(18.dp))
+                    Text(
+                        text = "My Recipes",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 4.dp)
+                    )
 
-                        Button(
-                            onClick = onEditProfileClick,
+                    Spacer(Modifier.height(12.dp))
+                }
+
+                // -------- My Recipes grid (2 columns) --------
+                if (myRecipes.isEmpty()) {
+                    item {
+                        Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(48.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = CookoutOrange)
+                                .height(150.dp),
+                            contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                "Edit Profile",
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color.White
+                                "No recipes yet. Tap + to start cooking one up!",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-
-                        Spacer(Modifier.height(8.dp))
-
-                        Button(
-                            onClick = onSendTestFollowRequest,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(48.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.outlinedButtonColors()
+                    }
+                } else {
+                    // Chunk recipes into rows of 2 for a fake grid
+                    val rows = myRecipes.chunked(2)
+                    items(rows) { rowRecipes ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Text(
-                                "Send Test Follow Request",
-                                fontWeight = FontWeight.SemiBold
-                            )
+                            rowRecipes.forEach { recipe ->
+                                Box(modifier = Modifier.weight(1f)) {
+                                    RecipeTile(
+                                        imageUrl = recipe.photoUrl,
+                                        title = recipe.title,
+                                        isPreview = isPreview,
+                                        onClick = { onRecipeClick(recipe) }
+                                    )
+                                }
+                            }
+                            // If odd count, keep layout balanced
+                            if (rowRecipes.size == 1) {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
                         }
-
                         Spacer(Modifier.height(12.dp))
                     }
                 }
 
-                Spacer(Modifier.height(18.dp))
-                Text(
-                    text = "My Recipes",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 4.dp)
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-//                val sampleDishes = listOf(
-//                    "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
-//                    "https://images.unsplash.com/photo-1617196034796-1f84b2b6c8f7",
-//                    "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f",
-//                    "https://images.unsplash.com/photo-1589307004391-95d2d8b92a4e",
-//                    "https://images.unsplash.com/photo-1605478441568-dad29db7f66a",
-//                    "https://images.unsplash.com/photo-1504674900247-0877df9cc836"
-//                )
-
-                if (myRecipes.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(150.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("No recipes yet. Tap + to start cooking one up!",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
+                // -------- Footer --------
+                item {
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        text = "© 2025 The Cookout. All rights reserved.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
                 }
-                else{
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(myRecipes) { recipe ->
-                            RecipeTile(imageUrl = recipe.photoUrl,
-                                title = recipe.title,
-                                isPreview = isPreview,
-                                onClick = { onRecipeClick(recipe)}
-                            )
-                        }
-                    }
-                }
-
-                Spacer(Modifier.height(16.dp))
-                Text(
-                    text = "© 2025 The Cookout. All rights reserved.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
             }
         }
     }
 }
 
 @Composable
-private fun RecipeTile(imageUrl: String?, title: String, isPreview: Boolean, onClick: () -> Unit){
+private fun RecipeTile(
+    imageUrl: String?,
+    title: String,
+    isPreview: Boolean,
+    onClick: () -> Unit
+) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(1f)
-            .clickable {onClick()},
+            .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
     ) {
-        if (isPreview || imageUrl == null){
+        if (isPreview || imageUrl == null) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
-            ){
+            ) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyMedium,
@@ -396,36 +399,6 @@ private fun StatItem(count: String, label: String) {
         )
     }
 }
-
-//@Composable
-//private fun RecipeTile(imageUrl: String?, isPreview: Boolean) {
-//    Surface(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .aspectRatio(1f),
-//        shape = RoundedCornerShape(16.dp),
-//        color = MaterialTheme.colorScheme.surfaceVariant,
-//        border = BorderStroke(
-//            1.dp,
-//            MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
-//        )
-//    ) {
-//        if (isPreview) {
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .background(MaterialTheme.colorScheme.surfaceVariant)
-//            )
-//        } else {
-//            AsyncImage(
-//                model = imageUrl,
-//                contentDescription = "Dish Image",
-//                contentScale = ContentScale.Crop,
-//                modifier = Modifier.fillMaxSize()
-//            )
-//        }
-//    }
-//}
 
 @Preview(
     showBackground = true,
